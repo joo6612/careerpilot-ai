@@ -1,6 +1,6 @@
 import { authService } from '../auth/auth.service';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://careerpilot-ai-ii4p.onrender.com';
 
 /**
  * Reusable HTTP API Client.
