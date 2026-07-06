@@ -1,0 +1,27 @@
+# Dependencies and Build Outputs
+node_modules
+dist
+npm-debug.log
+yarn-error.log
+
+# Databases and Local Data Fallbacks
+data/db.json
+data/*.json
+
+# Local Environment Settings
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
+
+# Version Control and IDEs
+.git
+.gitignore
+.vscode
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+.gemini

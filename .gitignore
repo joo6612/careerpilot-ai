@@ -1,0 +1,44 @@
+# Dependencies and Build folders
+node_modules/
+dist/
+dist-ssr/
+build/
+out/
+coverage/
+
+# Local Environment Variables and Secrets
+.env
+.env.*
+!.env.example
+serviceAccountKey.json
+*serviceAccountKey.json
+config/serviceAccountKey.json
+google-services.json
+
+# Local Database and Data Fallbacks
+data/db.json
+data/*.json
+db.json
+uploads/
+temp/
+.cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# System & IDE directories
+.DS_Store
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.gemini/
