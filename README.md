@@ -7,7 +7,7 @@ CareerPilot AI is an advanced, full-stack intelligence platform designed to guid
 
 ## 🔗 Project Links
 * **Live Demo:** [Placeholder for Demo URL](https://careerpilot-demo-url-placeholder)
-* **Demo Video:** [Placeholder for YouTube URL](https://youtube-video-url-placeholder)
+* **Demo Video:** [Placeholder for YouTube URL](https://youtu.be/rKAZcNGZReo)
 * **Kaggle Competition Writeup:** [Placeholder for Kaggle Writeup](https://kaggle-writeup-url-placeholder)
 
 ---
