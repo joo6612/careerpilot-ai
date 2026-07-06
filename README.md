@@ -81,7 +81,7 @@ This project is structured as a monorepo:
    ```bash
    npm run dev
    ```
-   The backend API will be available at `http://localhost:5000/api`.
+   The backend API will be available at `https://careerpilot-ai-ii4p.onrender.com`.
 
 ---
 
@@ -100,13 +100,13 @@ This project is structured as a monorepo:
    cp .env.example .env
    ```
    Configure the client settings:
-   - **`VITE_API_URL`**: Set to `http://localhost:5000/api` (points to the local backend).
+   - **`VITE_API_URL`**: Set to `https://careerpilot-ai-ii4p.onrender.com` (points to the local backend).
    - Firebase Web App Config (Optional, only needed if not using demo mode): `VITE_FIREBASE_API_KEY`, etc.
 4. Start the development server:
    ```bash
    npm run dev
    ```
-   The application will start on `http://localhost:5173`.
+   The application will start on `https://careerpilot-ai-534b1.web.app/`.
 
 ---
 
