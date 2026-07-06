@@ -23,10 +23,31 @@ try {
       }
     }
 
+    const envProjectId = process.env.FIREBASE_PROJECT_ID;
+    const envClientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const envPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+    console.log("PROJECT:", process.env.FIREBASE_PROJECT_ID);
+    console.log("EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
+    console.log(
+      "PRIVATE:",
+      process.env.FIREBASE_PRIVATE_KEY ? "YES" : "NO"
+    );
+
+    let firebaseCredentials: admin.ServiceAccount | null = null;
     if (serviceAccount) {
-      const projectId = serviceAccount.project_id;
+      firebaseCredentials = serviceAccount as admin.ServiceAccount;
+    } else if (envProjectId && envClientEmail && envPrivateKey) {
+      firebaseCredentials = {
+        projectId: envProjectId,
+        clientEmail: envClientEmail,
+        privateKey: envPrivateKey.replace(/\\n/g, '\n')
+      } as admin.ServiceAccount;
+    }
+
+    if (firebaseCredentials) {
+      const projectId = serviceAccount?.project_id || firebaseCredentials.projectId;
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+        credential: admin.credential.cert(firebaseCredentials),
         projectId
       });
 
