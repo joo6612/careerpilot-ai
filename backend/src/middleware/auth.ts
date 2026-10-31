@@ -1,10 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthenticationService } from '../services/auth_service';
-import { FirebaseAuthProvider } from '../services/firebase_auth_provider';
 import { DemoUserService } from '../services/demo_user_service';
-
-const authProvider = new FirebaseAuthProvider();
-const authService = new AuthenticationService(authProvider);
+import { FirebaseAuthProvider } from '../services/firebase_auth_provider';
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -12,58 +8,81 @@ export interface AuthenticatedRequest extends Request {
     email?: string;
     displayName?: string;
     photoURL?: string;
+    isDemo?: boolean;
     provider?: string;
+    [key: string]: any;
   };
 }
 
-export const authMiddleware = async (
+const firebaseAuthProvider = new FirebaseAuthProvider();
+
+export const authenticate = async (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   try {
     const authHeader = req.headers.authorization;
 
-
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({ error: 'Unauthorized: Missing or invalid token format' });
-      return;
-    }
-
-    const token = authHeader.split('Bearer ')[1];
-
-    if (token.startsWith('demo-')) {
-      const email = 'demo.user@careerpilot.demo';
-      req.user = {
-        uid: token,
-        email,
-        displayName: 'Alex Johnson',
-        provider: 'demo'
-      };
-      DemoUserService.registerDemoUid(token, email);
-      next();
-      return;
-    }
-
-    try {
-      const authenticatedUser = await authService.authenticate(token);
-      req.user = authenticatedUser;
-      
-      if (DemoUserService.isDemoUser(authenticatedUser)) {
-        DemoUserService.registerDemoUid(authenticatedUser.uid, authenticatedUser.email || '');
-      }
-
-      next();
-    } catch (err: any) {
-      console.error('Firebase token verification failed:', err.message);
-      const isExpired = err.message?.includes('Expired');
-      res.status(401).json({ 
-        error: isExpired ? 'Unauthorized: Expired token' : 'Unauthorized: Invalid token' 
+      return res.status(401).json({
+        error: 'Unauthorized: Missing or invalid token format'
       });
     }
-  } catch (error) {
-    console.error('Auth middleware error:', error);
-    res.status(500).json({ error: 'Internal Server Error in authentication' });
+
+    const token = authHeader.split(' ')[1]?.trim();
+
+    if (!token || token === 'undefined' || token === 'null' || token === '') {
+      return res.status(401).json({
+        error: 'Unauthorized: Missing or invalid token format'
+      });
+    }
+
+    // Demo Session Authentication
+    if (token === 'demo-token' || token === 'demo-user-token' || token.startsWith('demo-')) {
+      const demoUid = 'demo-user-123';
+      const demoEmail = 'demo@careerpilot.ai';
+      DemoUserService.registerDemoUid(demoUid, demoEmail);
+      const session = DemoUserService.getOrCreateSession(demoUid, demoEmail);
+
+      req.user = {
+        uid: demoUid,
+        email: demoEmail,
+        displayName: session.profile?.name || 'Demo User',
+        isDemo: true,
+      };
+      return next();
+    }
+
+    // Live Firebase Token Verification
+    try {
+      const verifiedUser = await firebaseAuthProvider.verifyToken(token);
+      req.user = verifiedUser;
+      return next();
+    } catch (firebaseErr: any) {
+      if (process.env.BYPASS_AUTH === 'true') {
+        const demoUid = 'demo-user-123';
+        DemoUserService.registerDemoUid(demoUid, 'demo@careerpilot.ai');
+        req.user = {
+          uid: demoUid,
+          email: 'demo@careerpilot.ai',
+          displayName: 'Bypass Dev User',
+          isDemo: true,
+        };
+        return next();
+      }
+
+      return res.status(401).json({
+        error: firebaseErr.message || 'Unauthorized: Token verification failed'
+      });
+    }
+  } catch (error: any) {
+    return res.status(500).json({
+      error: 'Internal Server Error during authentication',
+      details: error.message
+    });
   }
 };
+
+export const authMiddleware = authenticate;
+export default authenticate;

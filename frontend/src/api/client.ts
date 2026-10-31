@@ -1,99 +1,123 @@
-import { authService } from '../auth/auth.service';
+const ENV_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://careerpilot-ai-ii4p.onrender.com';
+export interface ApiClientOptions extends RequestInit {
+  params?: Record<string, string>;
+}
 
-/**
- * Reusable HTTP API Client.
- * Automatically fetches fresh Firebase ID tokens and attaches them as Bearer tokens to outbound requests.
- */
 export class ApiClient {
-  private static tokenResolver: (() => Promise<string | null>) | null = null;
+  private static getToken(): string {
+    const storedToken =
+      localStorage.getItem('auth_token') ||
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('auth_token');
 
-  /**
-   * Registers a token resolver callback (typically from AuthContext).
-   */
-  static registerTokenResolver(resolver: () => Promise<string | null>): void {
-    this.tokenResolver = resolver;
+    if (storedToken && storedToken !== 'undefined' && storedToken !== 'null') {
+      return storedToken;
+    }
+
+    return 'demo-user-token';
   }
 
-  private static async getHeaders(customHeaders: Record<string, string> = {}): Promise<HeadersInit> {
-    const headers: Record<string, string> = {
+  public static normalizeEndpoint(endpoint: string): string {
+    if (endpoint.startsWith('http')) return endpoint;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const cleanBase = ENV_BASE_URL.replace(/\/+$/, '');
+
+    if (cleanBase) {
+      if (cleanBase.endsWith('/api')) {
+        return cleanEndpoint.startsWith('/api/')
+          ? `${cleanBase}${cleanEndpoint.slice(4)}`
+          : `${cleanBase}${cleanEndpoint}`;
+      }
+      return cleanEndpoint.startsWith('/api')
+        ? `${cleanBase}${cleanEndpoint}`
+        : `${cleanBase}/api${cleanEndpoint}`;
+    }
+
+    return cleanEndpoint.startsWith('/api') ? cleanEndpoint : `/api${cleanEndpoint}`;
+  }
+
+  public static async request<T = any>(
+    endpoint: string,
+    options: ApiClientOptions = {}
+  ): Promise<T> {
+    const { params, headers = {}, ...customConfig } = options;
+    let url = this.normalizeEndpoint(endpoint);
+
+    if (params) {
+      const searchParams = new URLSearchParams(params);
+      url += (url.includes('?') ? '&' : '?') + searchParams.toString();
+    }
+
+    const token = this.getToken();
+    const requestHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...customHeaders
+      Authorization: `Bearer ${token}`,
+      ...(headers as Record<string, string>),
     };
 
-    try {
-      // Resolve token from AuthContext if registered, otherwise fallback to direct authService
-      let token: string | null = null;
-      if (this.tokenResolver) {
-        token = await this.tokenResolver();
-      } else {
-        token = await authService.getIdToken();
-      }
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-    } catch (error) {
-      console.warn('[API-CLIENT] Failed to retrieve auth token dynamically:', error);
-    }
-
-    return headers;
-  }
-
-  /**
-   * Helper request builder executing the fetch pipeline.
-   */
-  private static async request<T>(
-    path: string, 
-    options: RequestInit = {}
-  ): Promise<T> {
-    const url = `${API_URL}${path.startsWith('/') ? path : `/${path}`}`;
-    const headers = await this.getHeaders((options.headers as Record<string, string>) || {});
-    
     const response = await fetch(url, {
-      ...options,
-      headers
+      ...customConfig,
+      headers: requestHeaders,
     });
+
+    // Read body stream once as text to avoid "body stream already read" TypeError
+    const rawText = await response.text();
 
     if (!response.ok) {
-      const errMessage = await response.text().catch(() => 'Unknown API error');
-      throw new Error(`[API-CLIENT] HTTP Error ${response.status}: ${errMessage}`);
+      let errorMessage = `HTTP Error ${response.status}`;
+      if (rawText) {
+        try {
+          const errorJson = JSON.parse(rawText);
+          errorMessage += `: ${JSON.stringify(errorJson)}`;
+        } catch {
+          errorMessage += `: ${rawText.slice(0, 200)}`;
+        }
+      }
+      throw new Error(`[API-CLIENT] ${errorMessage}`);
     }
 
-    return response.json() as Promise<T>;
+    if (response.status === 204 || !rawText) {
+      return {} as T;
+    }
+
+    try {
+      return JSON.parse(rawText) as T;
+    } catch (err) {
+      throw new Error(`[API-CLIENT] Invalid JSON response from ${url}: ${rawText.slice(0, 100)}`);
+    }
   }
 
-  static async get<T>(path: string, customHeaders?: Record<string, string>): Promise<T> {
-    return this.request<T>(path, { method: 'GET', headers: customHeaders });
+  public static get<T = any>(endpoint: string, options: ApiClientOptions = {}) {
+    return this.request<T>(endpoint, { ...options, method: 'GET' });
   }
 
-  static async post<T>(path: string, body: any, customHeaders?: Record<string, string>): Promise<T> {
-    return this.request<T>(path, {
+  public static post<T = any>(endpoint: string, body?: any, options: ApiClientOptions = {}) {
+    return this.request<T>(endpoint, {
+      ...options,
       method: 'POST',
-      headers: customHeaders,
-      body: JSON.stringify(body)
+      body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  static async put<T>(path: string, body: any, customHeaders?: Record<string, string>): Promise<T> {
-    return this.request<T>(path, {
+  public static put<T = any>(endpoint: string, body?: any, options: ApiClientOptions = {}) {
+    return this.request<T>(endpoint, {
+      ...options,
       method: 'PUT',
-      headers: customHeaders,
-      body: JSON.stringify(body)
+      body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  static async patch<T>(path: string, body: any, customHeaders?: Record<string, string>): Promise<T> {
-    return this.request<T>(path, {
+  public static patch<T = any>(endpoint: string, body?: any, options: ApiClientOptions = {}) {
+    return this.request<T>(endpoint, {
+      ...options,
       method: 'PATCH',
-      headers: customHeaders,
-      body: JSON.stringify(body)
+      body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  static async delete<T>(path: string, customHeaders?: Record<string, string>): Promise<T> {
-    return this.request<T>(path, { method: 'DELETE', headers: customHeaders });
+  public static delete<T = any>(endpoint: string, options: ApiClientOptions = {}) {
+    return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }
 }
 

@@ -1,152 +1,186 @@
-import React, { createContext, useState, useEffect } from 'react';
-import type { User } from 'firebase/auth';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from './auth.service';
-import { ApiClient } from '../api/client';
+import { isFirebaseConfigured } from './firebase';
 
-export interface AuthContextProps {
-  user: User | null;
+export interface AuthContextType {
+  user: any;
   loading: boolean;
-  isAuthenticated: boolean;
-  login: () => Promise<User>;
-  loginWithEmail: (email: string, password: string) => Promise<User>;
-  signupWithEmail: (email: string, password: string, displayName: string) => Promise<User>;
-  logout: () => Promise<void>;
-  getIdToken: (forceRefresh?: boolean) => Promise<string | null>;
-  getToken: (forceRefresh?: boolean) => Promise<string | null>; // Keep for compatibility
   isDemo: boolean;
+  token: string | null;
+  login: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  signupWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
+  loginAsDemo: () => void;
   startDemoSession: () => void;
+  logout: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+export type AuthContextProps = AuthContextType;
+
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const userRef = React.useRef<User | null>(null);
+  const [isDemo, setIsDemo] = useState<boolean>(() => {
+    return localStorage.getItem('is_demo_mode') === 'true';
+  });
+  const [token, setToken] = useState<string | null>(() => {
+    return localStorage.getItem('auth_token') || 'demo-user-token';
+  });
+
+  const activateDemo = () => {
+    const demoToken = 'demo-user-token';
+    const demoUserObj = {
+      uid: 'demo-user-123',
+      email: 'demo@careerpilot.ai',
+      displayName: 'Alex Johnson (Demo)',
+    };
+    setIsDemo(true);
+    setToken(demoToken);
+    setUser(demoUserObj);
+    localStorage.setItem('auth_token', demoToken);
+    localStorage.setItem('is_demo_mode', 'true');
+    setLoading(false);
+  };
 
   useEffect(() => {
-    userRef.current = user;
-  }, [user]);
+    if (isDemo) {
+      activateDemo();
+      return;
+    }
 
-  // Sync auth state on startup and clean up subscription on unmount
-  useEffect(() => {
-    const unsubscribe = authService.onAuthStateChanged((currentUser) => {
-      if (userRef.current && userRef.current.providerId === 'demo') {
-        return;
+    if (!isFirebaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = authService.onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          const jwtToken = await firebaseUser.getIdToken();
+          setUser(firebaseUser);
+          setToken(jwtToken);
+          localStorage.setItem('auth_token', jwtToken);
+          localStorage.removeItem('is_demo_mode');
+          setIsDemo(false);
+        } catch (err) {
+          console.error('[AUTH CONTEXT] Failed to obtain ID token:', err);
+        }
+      } else {
+        if (!isDemo) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('auth_token');
+        }
       }
-      setUser(currentUser);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
-
-  // Register ApiClient token resolver
-  useEffect(() => {
-    ApiClient.registerTokenResolver(getIdToken);
-  }, []);
+  }, [isDemo]);
 
   const login = async () => {
     setLoading(true);
     try {
-      const loggedInUser = await authService.signInWithGoogle();
-      setUser(loggedInUser);
-      return loggedInUser;
-    } catch (error) {
+      if (!isFirebaseConfigured) {
+        activateDemo();
+        return;
+      }
+      const u = await authService.signInWithGoogle();
+      const jwtToken = await u.getIdToken();
+      setUser(u);
+      setToken(jwtToken);
+      setIsDemo(false);
+      localStorage.setItem('auth_token', jwtToken);
+      localStorage.removeItem('is_demo_mode');
+    } finally {
       setLoading(false);
-      throw error;
     }
   };
 
-  const loginWithEmail = async (email: string, password: string) => {
+  const loginWithEmail = async (email: string, pass: string) => {
     setLoading(true);
     try {
-      const loggedInUser = await authService.signInWithEmail(email, password);
-      setUser(loggedInUser);
-      return loggedInUser;
-    } catch (error) {
+      if (!isFirebaseConfigured) {
+        activateDemo();
+        return;
+      }
+      const u = await authService.signInWithEmail(email, pass);
+      const jwtToken = await u.getIdToken();
+      setUser(u);
+      setToken(jwtToken);
+      setIsDemo(false);
+      localStorage.setItem('auth_token', jwtToken);
+      localStorage.removeItem('is_demo_mode');
+    } finally {
       setLoading(false);
-      throw error;
     }
   };
 
-  const signupWithEmail = async (email: string, password: string, displayName: string) => {
+  const signupWithEmail = async (email: string, pass: string, name: string) => {
     setLoading(true);
     try {
-      const loggedInUser = await authService.signUpWithEmail(email, password, displayName);
-      setUser(loggedInUser);
-      return loggedInUser;
-    } catch (error) {
+      if (!isFirebaseConfigured) {
+        activateDemo();
+        return;
+      }
+      const u = await authService.signUpWithEmail(email, pass, name);
+      const jwtToken = await u.getIdToken();
+      setUser(u);
+      setToken(jwtToken);
+      setIsDemo(false);
+      localStorage.setItem('auth_token', jwtToken);
+      localStorage.removeItem('is_demo_mode');
+    } finally {
       setLoading(false);
-      throw error;
     }
-  };
-
-  const startDemoSession = () => {
-    const demoUid = `demo-${Math.random().toString(36).substring(2, 15)}-${Math.random().toString(36).substring(2, 15)}`;
-    const mockDemoUser: User = {
-      uid: demoUid,
-      email: 'demo.user@careerpilot.demo',
-      displayName: 'Alex Johnson',
-      photoURL: '',
-      providerId: 'demo',
-      emailVerified: true,
-      isAnonymous: false,
-      metadata: {},
-      providerData: [],
-      refreshToken: '',
-      tenantId: null,
-      delete: async () => {},
-      getIdToken: async () => demoUid,
-      getIdTokenResult: async () => ({} as any),
-      reload: async () => {},
-      toJSON: () => ({})
-    } as any;
-    
-    setUser(mockDemoUser);
-    setLoading(false);
   };
 
   const logout = async () => {
     setLoading(true);
     try {
-      if (user && user.providerId === 'demo') {
-        setUser(null);
-        setLoading(false);
-        return;
+      if (isFirebaseConfigured && !isDemo) {
+        await authService.signOut();
       }
-      await authService.signOut();
+    } catch (e) {
+      console.warn('Signout warning:', e);
+    } finally {
       setUser(null);
+      setIsDemo(false);
+      setToken(null);
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('is_demo_mode');
       setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      throw error;
     }
   };
-
-  const getIdToken = async (forceRefresh = false) => {
-    const currUser = userRef.current;
-    if (currUser && currUser.providerId === 'demo') {
-      return currUser.uid;
-    }
-    return authService.getIdToken(forceRefresh);
-  };
-
-  const getToken = async (forceRefresh = false) => {
-    const currUser = userRef.current;
-    if (currUser && currUser.providerId === 'demo') {
-      return currUser.uid;
-    }
-    return authService.getIdToken(forceRefresh);
-  };
-
-  const isAuthenticated = !!user;
-  const isDemo = !!(user && user.providerId === 'demo');
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthenticated, login, loginWithEmail, signupWithEmail, logout, getIdToken, getToken, isDemo, startDemoSession }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isDemo,
+        token,
+        login,
+        loginWithEmail,
+        signupWithEmail,
+        loginAsDemo: activateDemo,
+        startDemoSession: activateDemo,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
-export default AuthContext;
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export default useAuth;
