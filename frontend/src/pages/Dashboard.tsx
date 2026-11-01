@@ -508,12 +508,12 @@ export const Dashboard: React.FC = () => {
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 bg-ink-black/80 backdrop-blur-sm z-30 md:hidden"
+          className="fixed inset-0 bg-ink-black/80 backdrop-blur-sm z-40 md:hidden"
         />
       )}
 
       {/* 1. FIXED SIDEBAR */}
-      <aside className={`fixed md:sticky top-0 bottom-0 left-0 z-40 w-64 border-r flex flex-col justify-between h-screen p-5 shrink-0 transition-transform duration-300 transform md:transform-none ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${darkMode ? 'bg-ink-black border-pearl-aqua/10 text-white' : 'bg-white border-slate-200 text-slate-900 shadow-xl md:shadow-none'}`}>
+      <aside className={`fixed md:sticky top-0 bottom-0 left-0 z-50 md:z-30 w-64 border-r flex flex-col justify-between h-screen p-5 shrink-0 transition-transform duration-300 transform md:transform-none ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${darkMode ? 'bg-ink-black border-pearl-aqua/10 text-white' : 'bg-white border-slate-200 text-slate-900 shadow-xl md:shadow-none'}`}>
         <div className="flex flex-col gap-5 overflow-y-auto max-h-[calc(100vh-230px)] scrollbar-none">
           {/* Logo Section */}
           <div className="flex items-center justify-between px-1 bg-transparent">
@@ -620,6 +620,15 @@ export const Dashboard: React.FC = () => {
               <Menu className="w-5 h-5" />
             </button>
 
+            {/* Mobile Search Trigger (< sm) */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 rounded-xl bg-dark-teal/20 border border-pearl-aqua/15 text-pearl-aqua hover:text-white sm:hidden cursor-pointer flex items-center justify-center"
+              aria-label="Search platform"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
             {/* Global Search Bar */}
             <div
               onClick={() => setIsSearchOpen(true)}
@@ -691,7 +700,7 @@ export const Dashboard: React.FC = () => {
         </header>
 
         {/* 3. MAIN CONTENT CONTAINER */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto z-10 relative">
+        <main className="flex-1 p-3.5 sm:p-6 md:p-8 overflow-y-auto z-10 relative pb-28 md:pb-8">
 
           {/* TAB 1: HOME DASHBOARD */}
           {dashboardTab === 'dashboard' && (
@@ -732,8 +741,8 @@ export const Dashboard: React.FC = () => {
               </div>
 
               {/* Today's Mission & Quick Calibration */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2 p-6 rounded-3xl glass-card border border-pearl-aqua/20 flex flex-col gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="lg:col-span-2 p-4 sm:p-6 rounded-3xl glass-card border border-pearl-aqua/20 flex flex-col gap-4">
                   <div className="flex justify-between items-center border-b border-pearl-aqua/10 pb-3">
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-golden-orange animate-pulse" />
@@ -834,7 +843,7 @@ export const Dashboard: React.FC = () => {
                     return (
                       <div
                         key={cd.name}
-                        className={`p-6 rounded-3xl border transition-all ${isSelected
+                        className={`p-4 sm:p-6 rounded-3xl border transition-all ${isSelected
                           ? 'border-dark-cyan bg-dark-teal/25 shadow-xl shadow-dark-cyan/10'
                           : 'border-pearl-aqua/10 bg-dark-teal/10'
                         } flex flex-col gap-4`}
@@ -1098,11 +1107,11 @@ export const Dashboard: React.FC = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Scanner Main Column */}
-                <div className="md:col-span-2 flex flex-col gap-6">
+                <div className="lg:col-span-2 flex flex-col gap-6">
                   {resumeStage === 'idle' && (
-                    <div className="p-10 border-2 border-dashed border-pearl-aqua/20 hover:border-dark-cyan bg-dark-teal/15 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition-colors cursor-pointer relative">
+                    <div className="p-6 sm:p-10 border-2 border-dashed border-pearl-aqua/20 hover:border-dark-cyan bg-dark-teal/15 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition-colors cursor-pointer relative">
                       <input
                         type="file"
                         accept=".pdf,.docx,.doc"
@@ -1242,22 +1251,22 @@ export const Dashboard: React.FC = () => {
               </div>
 
               {/* Folder Filter & Search */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="flex flex-col gap-2">
-                  <span className="text-[10px] text-pearl-aqua font-bold uppercase tracking-wider block mb-1">Document Folders</span>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="flex lg:flex-col overflow-x-auto pb-2 lg:pb-0 no-scrollbar gap-2 shrink-0">
+                  <span className="text-[10px] text-pearl-aqua font-bold uppercase tracking-wider hidden lg:block mb-1">Document Folders</span>
                   {['All', 'Resume', 'Certificates', 'Projects', 'Academic Documents', 'Offer Letters', 'Other Documents'].map(folder => {
                     const active = selectedVaultFolder === folder;
                     return (
                       <button
                         key={folder}
                         onClick={() => setSelectedVaultFolder(folder)}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl border-0 cursor-pointer font-bold transition-all flex items-center justify-between text-xs ${active
+                        className={`text-left px-3 py-2 rounded-xl border-0 cursor-pointer font-bold transition-all flex items-center justify-between text-xs whitespace-nowrap shrink-0 lg:w-full ${active
                           ? 'bg-dark-teal text-white shadow-inner border border-pearl-aqua/30'
                           : 'bg-dark-teal/15 text-pearl-aqua/70 hover:bg-dark-teal/30 hover:text-white'
                         }`}
                       >
                         <span>{folder}</span>
-                        <span className="text-[10px] opacity-60">
+                        <span className="text-[10px] opacity-60 ml-2">
                           {folder === 'All' ? vaultFiles.length : vaultFiles.filter(f => f.folder === folder).length}
                         </span>
                       </button>
@@ -1266,7 +1275,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Document Grid */}
-                <div className="md:col-span-3 flex flex-col gap-4">
+                <div className="lg:col-span-3 flex flex-col gap-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {vaultFiles
                       .filter(f => selectedVaultFolder === 'All' || f.folder === selectedVaultFolder)
@@ -1305,14 +1314,14 @@ export const Dashboard: React.FC = () => {
 
           {/* TAB 6: EXPANDED AI MENTOR CHAT & TTS (Items 11, 28) */}
           {dashboardTab === 'mentor' && (
-            <div className="flex flex-col gap-4 max-w-6xl mx-auto h-[calc(100vh-110px)] text-left">
+            <div className="flex flex-col gap-4 max-w-6xl mx-auto h-[calc(100dvh-200px)] md:h-[calc(100vh-120px)] min-h-[420px] text-left">
               <div>
                 <h2 className="text-2xl font-black text-white mb-1">AI Mentorship Engine</h2>
                 <p className="text-xs text-pearl-aqua/80">Specialist mentorship with real-time Speech Synthesis (TTS) read-aloud support.</p>
               </div>
 
               {/* Mode Selectors */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[10px] font-bold uppercase shrink-0">
+              <div className="flex overflow-x-auto pb-1.5 no-scrollbar sm:grid sm:grid-cols-5 gap-2 text-[10px] font-bold uppercase shrink-0">
                 {[
                   { id: 'career', label: 'Career Advisor', icon: <Compass className="w-3.5 h-3.5" /> },
                   { id: 'resume', label: 'Resume Expert', icon: <FileCheck2 className="w-3.5 h-3.5" /> },
@@ -1325,7 +1334,7 @@ export const Dashboard: React.FC = () => {
                     <button
                       key={mode.id}
                       onClick={() => setMentorMode(mode.id as any)}
-                      className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer ${active
+                      className={`py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 sm:shrink ${active
                         ? 'border-dark-cyan bg-dark-teal/50 text-white font-extrabold shadow'
                         : 'border-pearl-aqua/15 bg-dark-teal/15 text-pearl-aqua/70 hover:bg-dark-teal/30 hover:text-white'
                       }`}
@@ -1427,7 +1436,7 @@ export const Dashboard: React.FC = () => {
                 <p className="text-xs text-pearl-aqua/80">Curate your candidate summary, verify strengths, track certifications, and connect external developer portfolios.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 {/* Left Overview Column */}
                 <div className="flex flex-col gap-6">
                   {/* Profile Header Card */}
@@ -1461,7 +1470,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Right Details Column */}
-                <div className="md:col-span-2 flex flex-col gap-6">
+                <div className="lg:col-span-2 flex flex-col gap-6">
                   {/* Editable About Me (Item 6) */}
                   <div className="p-6 rounded-3xl glass-card border border-pearl-aqua/15 flex flex-col gap-3">
                     <div className="flex justify-between items-center">
@@ -1758,6 +1767,36 @@ export const Dashboard: React.FC = () => {
           )}
 
         </main>
+
+        {/* 4. MOBILE BOTTOM NAVIGATION BAR (< md) */}
+        <nav
+          aria-label="Mobile Navigation"
+          className="fixed bottom-0 left-0 right-0 z-40 bg-ink-black/95 backdrop-blur-xl border-t border-pearl-aqua/15 px-1.5 py-1.5 md:hidden flex justify-around items-center pb-safe"
+        >
+          {menuItems.slice(0, 7).map(item => {
+            const active = dashboardTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setDashboardTab(item.id);
+                  setMobileMenuOpen(false);
+                }}
+                className={`flex flex-col items-center justify-center py-0.5 px-1 rounded-xl border-0 bg-transparent cursor-pointer transition-all ${
+                  active
+                    ? 'text-golden-orange font-bold scale-105'
+                    : 'text-pearl-aqua/70 hover:text-white font-medium'
+                }`}
+              >
+                <div className={`p-1 rounded-lg ${active ? 'bg-golden-orange/20 text-golden-orange' : 'bg-transparent'}`}>
+                  {item.icon}
+                </div>
+                <span className="text-[9px] mt-0.5 tracking-tight truncate max-w-[48px]">{item.label}</span>
+                {active && <span className="w-1 h-1 rounded-full bg-golden-orange mt-0.5"></span>}
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
       {/* Global Search Dialog Modal */}
@@ -1771,7 +1810,7 @@ export const Dashboard: React.FC = () => {
       {/* Career Vault Document Preview Modal (Item 27) */}
       {previewFile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-black/80 backdrop-blur-md">
-          <div className="w-full max-w-xl glass-card rounded-3xl border border-pearl-aqua/30 p-6 flex flex-col gap-4 text-left shadow-2xl">
+          <div className="w-full max-w-xl glass-card rounded-3xl border border-pearl-aqua/30 p-4 sm:p-6 max-h-[90vh] overflow-y-auto flex flex-col gap-4 text-left shadow-2xl">
             <div className="flex justify-between items-center border-b border-pearl-aqua/10 pb-3">
               <div className="flex flex-col">
                 <span className="text-sm font-extrabold text-white">{previewFile.name}</span>
@@ -1813,7 +1852,7 @@ export const Dashboard: React.FC = () => {
       {/* Pre-Resume Checks Modal (Item 22) */}
       {showResumePreCheck && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md glass-card rounded-3xl border border-golden-orange/40 p-6 flex flex-col gap-4 text-left shadow-2xl">
+          <div className="w-full max-w-md glass-card rounded-3xl border border-golden-orange/40 p-4 sm:p-6 max-h-[90vh] overflow-y-auto flex flex-col gap-4 text-left shadow-2xl">
             <div className="flex items-center gap-2.5 text-golden-orange">
               <AlertCircle className="w-6 h-6" />
               <h3 className="text-base font-black text-white m-0">Candidate Details Pre-Check</h3>
@@ -1850,7 +1889,7 @@ export const Dashboard: React.FC = () => {
       {/* Multi-Format Resume Export Modal (Item 23) */}
       {resumeExportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md glass-card rounded-3xl border border-pearl-aqua/30 p-6 flex flex-col gap-4 text-left shadow-2xl">
+          <div className="w-full max-w-md glass-card rounded-3xl border border-pearl-aqua/30 p-4 sm:p-6 max-h-[90vh] overflow-y-auto flex flex-col gap-4 text-left shadow-2xl">
             <div className="flex justify-between items-center border-b border-pearl-aqua/10 pb-3">
               <h3 className="text-base font-black text-white m-0">Multi-Format Resume Export</h3>
               <button

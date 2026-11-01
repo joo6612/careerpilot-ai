@@ -90,7 +90,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-ink-black bg-grid-pattern relative flex flex-col justify-center items-center px-4 py-12 overflow-hidden text-vanilla-custard">
+    <div className="min-h-screen bg-ink-black bg-grid-pattern relative flex flex-col justify-center items-center px-4 py-8 sm:py-12 overflow-hidden text-vanilla-custard">
       {/* Animated background highlights using palette */}
       <div className="absolute top-[20%] left-[15%] w-72 h-72 rounded-full bg-dark-cyan/15 blur-[80px] animate-float pointer-events-none"></div>
       <div className="absolute bottom-[20%] right-[15%] w-80 h-80 rounded-full bg-golden-orange/15 blur-[90px] animate-float pointer-events-none" style={{ animationDelay: '-3s' }}></div>
@@ -98,14 +98,14 @@ export const LoginPage: React.FC = () => {
       {/* Back to Home CTA */}
       <button 
         onClick={() => setPage('landing')}
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-pearl-aqua/80 hover:text-pearl-aqua transition-all cursor-pointer group bg-transparent border-0"
+        className="absolute top-4 sm:top-6 left-4 sm:left-6 flex items-center gap-2 text-xs sm:text-sm text-pearl-aqua/80 hover:text-pearl-aqua transition-all cursor-pointer group bg-transparent border-0 z-20"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Back to Home
       </button>
 
       {/* Auth Card */}
-      <div className="w-full max-w-md glass-card rounded-3xl p-8 border border-pearl-aqua/20 shadow-2xl relative z-10">
+      <div className="w-full max-w-md glass-card rounded-3xl p-5 sm:p-8 border border-pearl-aqua/20 shadow-2xl relative z-10 my-auto">
         
         {/* Logo and Header */}
         <div className="flex flex-col items-center gap-2 mb-8 text-center">

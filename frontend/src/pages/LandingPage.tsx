@@ -56,26 +56,26 @@ export const LandingPage: React.FC = () => {
       <div className="absolute bottom-[20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-golden-orange/15 blur-[150px] pointer-events-none"></div>
 
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 glass-card border-b border-pearl-aqua/10 py-4 px-6 md:px-12 flex justify-between items-center">
+      <header className="sticky top-0 z-50 glass-card border-b border-pearl-aqua/10 py-3 sm:py-4 px-4 sm:px-6 md:px-12 flex justify-between items-center">
         <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setPage('landing')}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-dark-cyan via-pearl-aqua to-golden-orange flex items-center justify-center shadow-lg shadow-dark-cyan/20">
-            <BrainCircuit className="w-6 h-6 text-ink-black" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-dark-cyan via-pearl-aqua to-golden-orange flex items-center justify-center shadow-lg shadow-dark-cyan/20">
+            <BrainCircuit className="w-5 h-5 sm:w-6 sm:h-6 text-ink-black" />
           </div>
-          <span className="font-display font-bold text-xl tracking-tight text-white">
+          <span className="font-display font-bold text-lg sm:text-xl tracking-tight text-white">
             CareerPilot <span className="text-pearl-aqua">AI</span>
           </span>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={() => setPage('login')} 
-            className="px-5 py-2.5 rounded-xl text-xs font-bold text-vanilla-custard hover:text-white hover:bg-dark-teal/30 transition-all border border-pearl-aqua/20 cursor-pointer"
+            className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs font-bold text-vanilla-custard hover:text-white hover:bg-dark-teal/30 transition-all border border-pearl-aqua/20 cursor-pointer"
           >
             Sign In
           </button>
           <button 
             onClick={() => setPage('login')} 
-            className="px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-dark-cyan via-golden-orange to-burnt-caramel text-ink-black shadow-lg shadow-dark-cyan/20 hover:scale-105 transition-all cursor-pointer border-0"
+            className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-dark-cyan via-golden-orange to-burnt-caramel text-ink-black shadow-lg shadow-dark-cyan/20 hover:scale-105 transition-all cursor-pointer border-0"
           >
             Get Started
           </button>
@@ -83,14 +83,14 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* Main Hero Section */}
-      <main className="flex-1 max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-8 sm:py-12 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center z-10">
         <div className="flex flex-col gap-6 text-left">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card border border-pearl-aqua/20 text-xs font-bold text-pearl-aqua w-fit tracking-wide">
             <Sparkles className="w-3.5 h-3.5 text-golden-orange" />
             AI-POWERED CAREER OPERATING SYSTEM
           </div>
           
-          <h1 className="font-display font-extrabold text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight text-white m-0">
+          <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight text-white m-0">
             Navigate Your Future with <br />
             <span className="bg-gradient-to-r from-dark-cyan via-pearl-aqua to-golden-orange bg-clip-text text-transparent">
               CareerPilot AI
@@ -117,7 +117,7 @@ export const LandingPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-6 mt-4 text-xs text-pearl-aqua/80">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-4 text-xs text-pearl-aqua/80">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-pearl-aqua" />
               <span>Strict Firebase Security</span>
@@ -171,13 +171,13 @@ export const LandingPage: React.FC = () => {
       </main>
 
       {/* Feature Grid */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 z-10 w-full">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-black text-white">Full-Stack Career Acceleration</h2>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 py-10 sm:py-16 z-10 w-full">
+        <div className="text-center mb-10 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-black text-white">Full-Stack Career Acceleration</h2>
           <p className="text-xs text-pearl-aqua/80 mt-1">Everything you need to master modern technical tracks from day one.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 text-left">
           {features.map((feat, idx) => (
             <div 
               key={idx} 

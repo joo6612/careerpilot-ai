@@ -162,9 +162,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-24 px-4 bg-navy-dark/70 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 sm:pt-20 px-3 sm:px-4 bg-ink-black/80 backdrop-blur-md">
       <div 
-        className="w-full max-w-xl glass-card rounded-2xl border border-white/15 overflow-hidden shadow-2xl flex flex-col max-h-[500px]"
+        className="w-full max-w-xl glass-card rounded-2xl border border-pearl-aqua/20 overflow-hidden shadow-2xl flex flex-col max-h-[85vh] sm:max-h-[500px]"
       >
         {/* Search Input Area */}
         <div className="flex items-center px-4 py-3.5 border-b border-white/10 bg-navy-dark/40 relative">
@@ -249,7 +249,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) =
         </div>
 
         {/* Footer shortcuts */}
-        <div className="px-4 py-2 bg-navy-dark/60 border-t border-white/5 text-[9px] text-slate-500 flex justify-between items-center">
+        <div className="px-4 py-2 bg-navy-dark/60 border-t border-white/5 text-[9px] text-slate-500 hidden sm:flex justify-between items-center">
           <span>Navigate with <kbd className="bg-white/5 px-1 py-0.5 rounded">↑↓</kbd> and <kbd className="bg-white/5 px-1 py-0.5 rounded">Enter</kbd></span>
           <span>Press <kbd className="bg-white/5 px-1 py-0.5 rounded">esc</kbd> to exit</span>
         </div>

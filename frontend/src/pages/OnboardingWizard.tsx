@@ -10,7 +10,8 @@ import {
   UploadCloud,
   FileText,
   BookmarkCheck,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 
 export const OnboardingWizard: React.FC = () => {
@@ -30,6 +31,7 @@ export const OnboardingWizard: React.FC = () => {
   // 3: Missing Details & Commitment (Commitment numbers + settings)
   // 4: Resume Scan Experience (Drag/drop + ATS Calibration)
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [mobileTab, setMobileTab] = useState<'chat' | 'config'>('chat');
   const [messages, setMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string }>>([
     {
       sender: 'ai',
@@ -176,8 +178,10 @@ export const OnboardingWizard: React.FC = () => {
         if (response.careerRecommendations && response.careerRecommendations.length > 0) {
           setSuggestedCareers(response.careerRecommendations);
           setStep(2);
+          setMobileTab('config');
         } else if (response.conversationProgress >= 50) {
           setStep(2);
+          setMobileTab('config');
         }
 
         // If successful, break out of the retry loop completely
@@ -232,6 +236,7 @@ export const OnboardingWizard: React.FC = () => {
           }
         ]);
         setStep(3);
+        setMobileTab('config');
       }, 1200);
 
     } catch (e) {
@@ -252,6 +257,7 @@ export const OnboardingWizard: React.FC = () => {
         }
       ]);
       setStep(4);
+      setMobileTab('config');
     }, 1000);
   };
 
@@ -440,13 +446,43 @@ export const OnboardingWizard: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-navy-bg text-slate-100 flex flex-col md:flex-row overflow-hidden relative">
+    <div className="h-screen max-h-[100dvh] bg-ink-black text-vanilla-custard flex flex-col md:flex-row overflow-hidden relative">
+      {/* MOBILE SEGMENT SWITCHER (< md) */}
+      <div className="flex md:hidden border-b border-pearl-aqua/15 bg-ink-black/95 p-2 gap-2 shrink-0 z-30">
+        <button
+          type="button"
+          onClick={() => setMobileTab('chat')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+            mobileTab === 'chat'
+              ? 'bg-dark-teal/40 border-pearl-aqua/50 text-pearl-aqua shadow'
+              : 'bg-transparent border-transparent text-pearl-aqua/60 hover:text-white'
+          }`}
+        >
+          <Bot className="w-4 h-4" />
+          <span>AI Mentor Chat</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('config')}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all relative ${
+            mobileTab === 'config'
+              ? 'bg-golden-orange/20 border-golden-orange/50 text-golden-orange shadow'
+              : 'bg-transparent border-transparent text-pearl-aqua/60 hover:text-white'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>Setup Step {step}/4</span>
+          {step > 1 && (
+            <span className="w-2 h-2 rounded-full bg-golden-orange animate-pulse"></span>
+          )}
+        </button>
+      </div>
       {/* Glow backgrounds */}
       <div className="absolute top-[10%] left-[10%] w-[350px] h-[350px] rounded-full bg-neon-blue/4 blur-[100px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[10%] w-[350px] h-[350px] rounded-full bg-neon-purple/4 blur-[100px] pointer-events-none"></div>
 
       {/* LEFT PANEL: The AI conversational chatbot */}
-      <div className="flex-1 flex flex-col border-r border-white/5 h-full relative z-10">
+      <div className={`w-full md:flex-1 flex flex-col border-r border-pearl-aqua/10 h-full relative z-10 ${mobileTab === 'chat' ? 'flex' : 'hidden md:flex'}`}>
 
         {/* Onboarding Header */}
         <header className="px-6 py-4.5 border-b border-white/5 flex justify-between items-center backdrop-blur-md bg-navy-dark/40">
@@ -525,14 +561,20 @@ export const OnboardingWizard: React.FC = () => {
           ) : (
             <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold px-2 py-1.5 uppercase tracking-wider bg-transparent">
               <span>Conversational checkpoint active</span>
-              <span className="text-neon-cyan">Please proceed on the right panel</span>
+              <button
+                type="button"
+                onClick={() => setMobileTab('config')}
+                className="text-golden-orange hover:text-white underline cursor-pointer bg-transparent border-0 font-bold"
+              >
+                Proceed to Step {step} Setup &rarr;
+              </button>
             </div>
           )}
         </div>
       </div>
 
       {/* RIGHT PANEL: Dynamic configuration dashboard */}
-      <div className="w-full md:w-[480px] lg:w-[540px] flex flex-col bg-navy-dark/25 h-full relative z-10 border-l border-white/5">
+      <div className={`w-full md:w-[480px] lg:w-[540px] flex flex-col bg-ink-black/40 h-full relative z-10 border-l border-pearl-aqua/10 ${mobileTab === 'config' ? 'flex' : 'hidden md:flex'}`}>
 
         {/* Step Progress indicators */}
         <div className="p-6 border-b border-white/5 flex flex-col gap-3">
