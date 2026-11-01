@@ -47,8 +47,8 @@ const initialProfile: UserProfile = {
   aboutMe: '',
   interests: [],
   favoriteSubjects: '',
-  country: 'United States',
-  expectedSalary: '95,000',
+  country: '',
+  expectedSalary: '',
   workPreference: 'Remote',
   selectedCareer: '',
   status: null,
@@ -97,8 +97,19 @@ const defaultRoadmap: RoadmapItem[] = [
     description: 'Learn the foundational concepts and mathematics required for your career choice.',
     status: 'in-progress',
     duration: '4 weeks',
-    skills: ['Core Concepts', 'Basic Tools'],
-    topics: ['Industry Overview', 'Syntax & Scripting', 'Basic Problem Solving', 'Version Control with Git']
+    skills: ['Core Concepts', 'Basic Tools', 'Git & CLI'],
+    topics: ['Industry Overview', 'Syntax & Scripting', 'Basic Problem Solving', 'Version Control with Git'],
+    project: {
+      title: 'Developer Portfolio & CLI Tool',
+      description: 'Build a custom terminal CLI automation script and deploy a personal portfolio with clean Git commit conventions.',
+      deliverables: ['Interactive CLI utility script', 'Git repository with conventional commit history', 'Live deployed personal landing portal']
+    },
+    resources: {
+      youtube: [{ title: 'Foundations & Tooling Guide', url: 'https://www.youtube.com/results?search_query=programming+foundations+git+cli' }],
+      coursera: [{ title: 'Google IT Automation with Python', url: 'https://www.coursera.org/professional-certificates/google-it-automation' }],
+      udemy: [{ title: 'The Complete Developer Bootcamp', url: 'https://www.udemy.com/topic/web-development/' }],
+      kaggle: [{ title: 'Intro to Programming Course', url: 'https://www.kaggle.com/learn/intro-to-programming' }]
+    }
   },
   {
     id: 'rm-2',
@@ -106,8 +117,19 @@ const defaultRoadmap: RoadmapItem[] = [
     description: 'Dive deep into specific framework models, algorithms, and application designs.',
     status: 'locked',
     duration: '6 weeks',
-    skills: ['Architecture', 'Advanced Frameworks'],
-    topics: ['Database Design (SQL/NoSQL)', 'API Integration', 'Data Validation & Processing', 'Testing & Debugging']
+    skills: ['Architecture', 'Advanced Frameworks', 'Relational Modeling'],
+    topics: ['Database Design (SQL/NoSQL)', 'API Integration', 'Data Validation & Processing', 'Testing & Debugging'],
+    project: {
+      title: 'Distributed REST API Service',
+      description: 'Design a relational database schema with authenticated endpoints, automated integration testing, and rate limiting.',
+      deliverables: ['RESTful service architecture', 'Unit test suite with 80%+ coverage', 'Comprehensive Swagger/OpenAPI documentation']
+    },
+    resources: {
+      youtube: [{ title: 'System Architecture & Database Design', url: 'https://www.youtube.com/results?search_query=backend+architecture+sql+rest+api' }],
+      coursera: [{ title: 'Meta Back-End Developer Certificate', url: 'https://www.coursera.org/professional-certificates/meta-back-end-developer' }],
+      udemy: [{ title: 'Microservices Architecture Masterclass', url: 'https://www.udemy.com/topic/microservices/' }],
+      kaggle: [{ title: 'Advanced SQL Course & Practice Queries', url: 'https://www.kaggle.com/learn/advanced-sql' }]
+    }
   },
   {
     id: 'rm-3',
@@ -115,8 +137,19 @@ const defaultRoadmap: RoadmapItem[] = [
     description: 'Learn how to build scalable systems, deploy them to production, and monitor performance.',
     status: 'locked',
     duration: '6 weeks',
-    skills: ['Cloud Computing', 'System Architecture'],
-    topics: ['Docker & Containerization', 'CI/CD Pipelines', 'Cloud Platforms (AWS/GCP)', 'Monitoring & Scaling']
+    skills: ['Cloud Computing', 'System Architecture', 'DevOps'],
+    topics: ['Docker & Containerization', 'CI/CD Pipelines', 'Cloud Platforms (AWS/GCP)', 'Monitoring & Scaling'],
+    project: {
+      title: 'Cloud-Native Container Pipeline',
+      description: 'Containerize your full-stack service with multi-stage Dockerfiles and deploy using GitHub Actions CI/CD to cloud infrastructure.',
+      deliverables: ['Production Dockerfile', 'Automated CI/CD build & test workflow', 'Cloud deployment URL with live health checks']
+    },
+    resources: {
+      youtube: [{ title: 'Docker & Cloud Deployment Workshop', url: 'https://www.youtube.com/results?search_query=docker+cicd+cloud+deployment+tutorial' }],
+      coursera: [{ title: 'Cloud Architecture with GCP', url: 'https://www.coursera.org/professional-certificates/gcp-cloud-architect' }],
+      udemy: [{ title: 'Docker and Kubernetes: Complete Guide', url: 'https://www.udemy.com/course/docker-and-kubernetes-the-complete-guide/' }],
+      kaggle: [{ title: 'Intro to Deep Learning & Cloud ML', url: 'https://www.kaggle.com/learn/intro-to-deep-learning' }]
+    }
   },
   {
     id: 'rm-4',
@@ -124,10 +157,34 @@ const defaultRoadmap: RoadmapItem[] = [
     description: 'Develop a production-ready application and prepare for behavioral and technical interviews.',
     status: 'locked',
     duration: '4 weeks',
-    skills: ['System Design', 'Technical Interviewing'],
-    topics: ['Full-Scale Deployment', 'Mock Interviews', 'Algorithm Practicing', 'System Design Whiteboarding']
+    skills: ['System Design', 'Technical Interviewing', 'Production Readiness'],
+    topics: ['Full-Scale Deployment', 'Mock Interviews', 'Algorithm Practicing', 'System Design Whiteboarding'],
+    project: {
+      title: 'Industry-Grade Capstone Application',
+      description: 'Build an end-to-end full-stack AI-integrated application solving a real-world enterprise problem with end-to-end monitoring.',
+      deliverables: ['Live production demo link', 'GitHub repository with architecture diagram', '5-minute video walkthrough']
+    },
+    resources: {
+      youtube: [{ title: 'System Design Interview Crash Course', url: 'https://www.youtube.com/results?search_query=system+design+interview+guide' }],
+      coursera: [{ title: 'Full Stack Software Engineering Specialization', url: 'https://www.coursera.org/specializations/full-stack-react' }],
+      udemy: [{ title: 'Master the Coding Interview: Data Structures & Algorithms', url: 'https://www.udemy.com/course/master-the-coding-interview-data-structures-algorithms/' }],
+      kaggle: [{ title: 'Kaggle Community Competitions', url: 'https://www.kaggle.com/competitions' }]
+    }
   }
 ];
+
+// Register browser console debug helper for state recovery
+if (typeof window !== 'undefined') {
+  (window as any).resetCareerPilotSession = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn('Storage purge error:', e);
+    }
+    window.location.reload();
+  };
+}
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
 
@@ -174,8 +231,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           const roadmapData = await ApiClient.get<RoadmapItem[]>('/roadmap');
           setRoadmap(roadmapData);
         } catch (error: any) {
-          // New users won't have a roadmap yet.
-          // This is an expected state, not an application error.
           if (
             error?.message?.includes('404') ||
             error?.message?.includes('No active learning roadmap')
@@ -216,21 +271,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Dynamically update skills & courses metrics when profile changes
   useEffect(() => {
-    setSkillsLearnedCount(profile.skills.length);
-    setCoursesCompletedCount(profile.certifications.length);
+    setSkillsLearnedCount(profile?.skills?.length || 0);
+    setCoursesCompletedCount(profile?.certifications?.length || 0);
 
     // Count projects built
     let count = 0;
-    if (profile.projects.githubUrl) count++;
-    if (profile.projects.projectLinks) count++;
-    if (profile.projects.portfolioUrl) count++;
+    if (profile?.projects?.githubUrl) count++;
+    if (profile?.projects?.projectLinks) count++;
+    if (profile?.projects?.portfolioUrl) count++;
     setProjectsBuiltCount(count);
-  }, [profile.skills, profile.certifications, profile.projects]);
+  }, [profile?.skills, profile?.certifications, profile?.projects]);
 
   const updateProfile = (fields: Partial<UserProfile>) => {
     setProfile(prev => {
       const updated = { ...prev, ...fields };
-      // Async update in DB via ApiClient
       ApiClient.post('/profile', updated).catch(err => console.error('Error updating profile in backend:', err));
       return updated;
     });
@@ -245,7 +299,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           ...(fields as any)
         } as any
       };
-      // Async update in DB via ApiClient
       ApiClient.post('/profile', updated).catch(err => console.error('Error updating profile in backend:', err));
       return updated;
     });
@@ -338,27 +391,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const toggleRoadmapItemStatus = (id: string) => {
+    setRoadmap(prev => {
+      const items = [...prev];
+      const idx = items.findIndex(item => item.id === id);
+      if (idx !== -1) {
+        const nextStatus = items[idx].status === 'completed' ? 'in-progress' : 'completed';
+        items[idx] = { ...items[idx], status: nextStatus };
+        // Auto-unlock immediate next stage if locked
+        if (nextStatus === 'completed' && idx + 1 < items.length && items[idx + 1].status === 'locked') {
+          items[idx + 1] = { ...items[idx + 1], status: 'in-progress' };
+        }
+      }
+      return items;
+    });
+
     ApiClient.post<RoadmapItem[]>('/roadmap/toggle', { id })
       .then(data => {
-        setRoadmap(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setRoadmap(data);
+        }
       })
       .catch(err => console.error('Error toggling roadmap item status:', err));
   };
 
   const resetApp = () => {
+    try {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('token');
+      localStorage.removeItem('is_demo_mode');
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn('Storage purge error:', e);
+    }
+
     setProfile(initialProfile);
     setOnboardingStep(1);
-    setPage('login');
     setDashboardTab('dashboard');
     setRoadmap(defaultRoadmap);
+    setChatMessages([]);
 
-    // Clear Firebase session
     authService.signOut().catch(err => console.error('Error signing out on reset:', err));
 
-    // Clear in backend database as well
     ApiClient.post('/profile', initialProfile).catch(err => console.error('Error resetting profile in backend:', err));
     ApiClient.post('/roadmap/generate', {}).catch(err => console.error('Error resetting roadmap in backend:', err));
     ApiClient.post('/mentor/chat', { text: 'reset' }).catch(err => console.error('Error resetting chat in backend:', err));
+
+    setPage('landing');
   };
 
   return (

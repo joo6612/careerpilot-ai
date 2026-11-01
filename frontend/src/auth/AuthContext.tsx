@@ -22,35 +22,23 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isDemo, setIsDemo] = useState<boolean>(() => {
-    return localStorage.getItem('is_demo_mode') === 'true';
-  });
   const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('auth_token') || 'demo-user-token';
+    const stored = localStorage.getItem('auth_token');
+    // Ensure no demo tokens persist
+    if (!stored || stored.startsWith('demo-')) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('is_demo_mode');
+      return null;
+    }
+    return stored;
   });
-
-  const activateDemo = () => {
-    const demoToken = 'demo-user-token';
-    const demoUserObj = {
-      uid: 'demo-user-123',
-      email: 'demo@careerpilot.ai',
-      displayName: 'Alex Johnson (Demo)',
-    };
-    setIsDemo(true);
-    setToken(demoToken);
-    setUser(demoUserObj);
-    localStorage.setItem('auth_token', demoToken);
-    localStorage.setItem('is_demo_mode', 'true');
-    setLoading(false);
-  };
 
   useEffect(() => {
-    if (isDemo) {
-      activateDemo();
-      return;
-    }
+    // Purge legacy demo artifacts
+    localStorage.removeItem('is_demo_mode');
 
     if (!isFirebaseConfigured) {
+      console.warn('[AUTH] Firebase configuration missing. Please verify environment credentials.');
       setLoading(false);
       return;
     }
@@ -63,35 +51,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setToken(jwtToken);
           localStorage.setItem('auth_token', jwtToken);
           localStorage.removeItem('is_demo_mode');
-          setIsDemo(false);
         } catch (err) {
           console.error('[AUTH CONTEXT] Failed to obtain ID token:', err);
-        }
-      } else {
-        if (!isDemo) {
           setUser(null);
           setToken(null);
           localStorage.removeItem('auth_token');
         }
+      } else {
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('is_demo_mode');
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, [isDemo]);
+    const handleAuthExpired = () => {
+      console.warn('[AUTH] Expired session received. Transitioning state to unauthenticated.');
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('is_demo_mode');
+    };
+    window.addEventListener('auth:expired', handleAuthExpired);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('auth:expired', handleAuthExpired);
+    };
+  }, []);
 
   const login = async () => {
     setLoading(true);
     try {
       if (!isFirebaseConfigured) {
-        activateDemo();
-        return;
+        throw new Error('Firebase configuration missing.');
       }
       const u = await authService.signInWithGoogle();
       const jwtToken = await u.getIdToken();
       setUser(u);
       setToken(jwtToken);
-      setIsDemo(false);
       localStorage.setItem('auth_token', jwtToken);
       localStorage.removeItem('is_demo_mode');
     } finally {
@@ -103,14 +102,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       if (!isFirebaseConfigured) {
-        activateDemo();
-        return;
+        throw new Error('Firebase configuration missing.');
       }
       const u = await authService.signInWithEmail(email, pass);
       const jwtToken = await u.getIdToken();
       setUser(u);
       setToken(jwtToken);
-      setIsDemo(false);
       localStorage.setItem('auth_token', jwtToken);
       localStorage.removeItem('is_demo_mode');
     } finally {
@@ -122,14 +119,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     try {
       if (!isFirebaseConfigured) {
-        activateDemo();
-        return;
+        throw new Error('Firebase configuration missing.');
       }
       const u = await authService.signUpWithEmail(email, pass, name);
       const jwtToken = await u.getIdToken();
       setUser(u);
       setToken(jwtToken);
-      setIsDemo(false);
       localStorage.setItem('auth_token', jwtToken);
       localStorage.removeItem('is_demo_mode');
     } finally {
@@ -140,14 +135,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     setLoading(true);
     try {
-      if (isFirebaseConfigured && !isDemo) {
+      if (isFirebaseConfigured) {
         await authService.signOut();
       }
     } catch (e) {
       console.warn('Signout warning:', e);
     } finally {
       setUser(null);
-      setIsDemo(false);
       setToken(null);
       localStorage.removeItem('auth_token');
       localStorage.removeItem('is_demo_mode');
@@ -155,18 +149,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Demo fallback deprecated: instruct user to sign in
+  const deprecatedDemoHandler = () => {
+    console.warn('[AUTH] Demo mode has been retired. Please sign in with your account.');
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
-        isDemo,
+        isDemo: false,
         token,
         login,
         loginWithEmail,
         signupWithEmail,
-        loginAsDemo: activateDemo,
-        startDemoSession: activateDemo,
+        loginAsDemo: deprecatedDemoHandler,
+        startDemoSession: deprecatedDemoHandler,
         logout,
       }}
     >

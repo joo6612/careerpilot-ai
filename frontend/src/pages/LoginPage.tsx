@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Mail, Lock, User, ArrowLeft, BrainCircuit } from 'lucide-react';
+import { Mail, Lock, User, ArrowLeft, BrainCircuit, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../auth/useAuth';
 
 export const LoginPage: React.FC = () => {
@@ -9,6 +9,7 @@ export const LoginPage: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [name, setName] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<boolean>(false);
@@ -89,38 +90,38 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-height-screen bg-navy-bg bg-grid-pattern relative flex flex-col justify-center items-center px-4 py-12 overflow-hidden">
-      {/* Animated floating background orbs */}
-      <div className="absolute top-[20%] left-[15%] w-72 h-72 rounded-full bg-neon-blue/10 blur-[80px] animate-float pointer-events-none"></div>
-      <div className="absolute bottom-[20%] right-[15%] w-80 h-80 rounded-full bg-neon-purple/10 blur-[90px] animate-float pointer-events-none" style={{ animationDelay: '-3s' }}></div>
+    <div className="min-h-screen bg-ink-black bg-grid-pattern relative flex flex-col justify-center items-center px-4 py-12 overflow-hidden text-vanilla-custard">
+      {/* Animated background highlights using palette */}
+      <div className="absolute top-[20%] left-[15%] w-72 h-72 rounded-full bg-dark-cyan/15 blur-[80px] animate-float pointer-events-none"></div>
+      <div className="absolute bottom-[20%] right-[15%] w-80 h-80 rounded-full bg-golden-orange/15 blur-[90px] animate-float pointer-events-none" style={{ animationDelay: '-3s' }}></div>
 
       {/* Back to Home CTA */}
       <button 
         onClick={() => setPage('landing')}
-        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-all cursor-pointer group"
+        className="absolute top-6 left-6 flex items-center gap-2 text-sm text-pearl-aqua/80 hover:text-pearl-aqua transition-all cursor-pointer group bg-transparent border-0"
       >
         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
         Back to Home
       </button>
 
       {/* Auth Card */}
-      <div className="w-full max-w-md glass-card rounded-3xl p-8 border border-white/10 shadow-2xl relative z-10">
+      <div className="w-full max-w-md glass-card rounded-3xl p-8 border border-pearl-aqua/20 shadow-2xl relative z-10">
         
         {/* Logo and Header */}
         <div className="flex flex-col items-center gap-2 mb-8 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-neon-blue to-neon-purple flex items-center justify-center shadow-lg shadow-neon-blue/20">
-            <BrainCircuit className="w-7 h-7 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-dark-cyan to-golden-orange flex items-center justify-center shadow-lg shadow-dark-cyan/20">
+            <BrainCircuit className="w-7 h-7 text-ink-black" />
           </div>
           <h2 className="font-display font-bold text-2xl text-white mt-4 mb-1">
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </h2>
-          <p className="text-slate-400 text-sm">
+          <p className="text-pearl-aqua/80 text-sm">
             {isSignUp ? 'Start building your dream career today' : 'Continue your AI-mentored career journey'}
           </p>
         </div>
 
         {errors.submit && (
-          <div className="mb-4 p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs text-left">
+          <div className="mb-4 p-3.5 bg-oxidized-iron/20 border border-oxidized-iron/40 text-rusty-spice rounded-xl text-xs text-left">
             {errors.submit}
           </div>
         )}
@@ -129,7 +130,7 @@ export const LoginPage: React.FC = () => {
         <button 
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full py-3.5 px-4 rounded-xl glass-card border border-white/10 hover:border-neon-blue/40 text-slate-200 hover:text-white font-medium text-sm flex items-center justify-center gap-3 transition-all hover:bg-white/5 active:scale-[0.98] cursor-pointer mb-6"
+          className="w-full py-3.5 px-4 rounded-xl glass-card border border-pearl-aqua/20 hover:border-dark-cyan text-vanilla-custard hover:text-white font-medium text-sm flex items-center justify-center gap-3 transition-all hover:bg-dark-teal/30 active:scale-[0.98] cursor-pointer mb-6"
         >
           <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -142,78 +143,86 @@ export const LoginPage: React.FC = () => {
 
         {/* Divider */}
         <div className="flex items-center gap-4 mb-6">
-          <div className="flex-1 h-px bg-white/10"></div>
-          <span className="text-slate-500 text-xs font-semibold uppercase tracking-wider">or email</span>
-          <div className="flex-1 h-px bg-white/10"></div>
+          <div className="flex-1 h-px bg-pearl-aqua/20"></div>
+          <span className="text-pearl-aqua/60 text-xs font-semibold uppercase tracking-wider">or email</span>
+          <div className="flex-1 h-px bg-pearl-aqua/20"></div>
         </div>
 
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {isSignUp && (
             <div className="flex flex-col gap-1.5 text-left">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Full Name</label>
+              <label className="text-xs font-semibold text-pearl-aqua uppercase tracking-wide">Full Name</label>
               <div className="relative">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-pearl-aqua/60" />
                 <input 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
-                  className={`w-full pl-11 pr-4 py-3 bg-navy-dark/60 border ${errors.name ? 'border-red-500' : 'border-white/10 focus:border-neon-blue/60'} rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none transition-all text-sm`}
+                  className={`w-full pl-11 pr-4 py-3 bg-dark-teal/20 border ${errors.name ? 'border-oxidized-iron' : 'border-pearl-aqua/30 focus:border-dark-cyan'} rounded-xl text-white placeholder-pearl-aqua/40 focus:outline-none transition-all text-sm`}
                 />
               </div>
-              {errors.name && <span className="text-red-500 text-xs mt-1">{errors.name}</span>}
+              {errors.name && <span className="text-rusty-spice text-xs mt-1">{errors.name}</span>}
             </div>
           )}
 
           <div className="flex flex-col gap-1.5 text-left">
-            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Email Address</label>
+            <label className="text-xs font-semibold text-pearl-aqua uppercase tracking-wide">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-pearl-aqua/60" />
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="john@example.com"
-                className={`w-full pl-11 pr-4 py-3 bg-navy-dark/60 border ${errors.email ? 'border-red-500' : 'border-white/10 focus:border-neon-blue/60'} rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none transition-all text-sm`}
+                className={`w-full pl-11 pr-4 py-3 bg-dark-teal/20 border ${errors.email ? 'border-oxidized-iron' : 'border-pearl-aqua/30 focus:border-dark-cyan'} rounded-xl text-white placeholder-pearl-aqua/40 focus:outline-none transition-all text-sm`}
               />
             </div>
-            {errors.email && <span className="text-red-500 text-xs mt-1">{errors.email}</span>}
+            {errors.email && <span className="text-rusty-spice text-xs mt-1">{errors.email}</span>}
           </div>
 
           <div className="flex flex-col gap-1.5 text-left">
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Password</label>
+              <label className="text-xs font-semibold text-pearl-aqua uppercase tracking-wide">Password</label>
               {!isSignUp && (
                 <button 
                   type="button"
-                  onClick={() => alert('Password reset email sent (Mocked).')}
-                  className="text-xs text-neon-cyan hover:text-white transition-all bg-transparent border-0 cursor-pointer"
+                  onClick={() => alert('Password reset verification link requested.')}
+                  className="text-xs text-golden-orange hover:text-vanilla-custard transition-all bg-transparent border-0 cursor-pointer"
                 >
                   Forgot Password?
                 </button>
               )}
             </div>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-pearl-aqua/60" />
               <input 
-                type="password" 
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full pl-11 pr-4 py-3 bg-navy-dark/60 border ${errors.password ? 'border-red-500' : 'border-white/10 focus:border-neon-blue/60'} rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none transition-all text-sm`}
+                className={`w-full pl-11 pr-11 py-3 bg-dark-teal/20 border ${errors.password ? 'border-oxidized-iron' : 'border-pearl-aqua/30 focus:border-dark-cyan'} rounded-xl text-white placeholder-pearl-aqua/40 focus:outline-none transition-all text-sm`}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-pearl-aqua/60 hover:text-white transition-colors border-0 bg-transparent cursor-pointer p-0.5 flex items-center justify-center"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4 text-golden-orange" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
-            {errors.password && <span className="text-red-500 text-xs mt-1">{errors.password}</span>}
+            {errors.password && <span className="text-rusty-spice text-xs mt-1">{errors.password}</span>}
           </div>
 
           <button 
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-4 mt-2 rounded-xl bg-gradient-to-r from-neon-blue to-neon-purple text-white font-semibold text-sm shadow-lg shadow-neon-blue/15 hover:shadow-neon-purple/20 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-4 mt-2 rounded-xl bg-gradient-to-r from-dark-cyan via-golden-orange to-burnt-caramel text-ink-black font-extrabold text-sm shadow-lg shadow-dark-cyan/20 hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-ink-black border-t-transparent rounded-full animate-spin"></div>
             ) : (
               isSignUp ? 'Create Account' : 'Sign In'
             )}
@@ -221,13 +230,13 @@ export const LoginPage: React.FC = () => {
         </form>
 
         {/* Bottom Options toggle */}
-        <div className="mt-8 text-center text-sm text-slate-500">
+        <div className="mt-8 text-center text-sm text-pearl-aqua/70">
           {isSignUp ? (
             <span>
               Already have an account?{' '}
               <button 
                 onClick={() => { setIsSignUp(false); setErrors({}); }} 
-                className="text-neon-cyan hover:text-white font-medium bg-transparent border-0 cursor-pointer transition-all"
+                className="text-golden-orange hover:text-white font-bold bg-transparent border-0 cursor-pointer transition-all"
               >
                 Sign In
               </button>
@@ -237,7 +246,7 @@ export const LoginPage: React.FC = () => {
               Don't have an account?{' '}
               <button 
                 onClick={() => { setIsSignUp(true); setErrors({}); }} 
-                className="text-neon-cyan hover:text-white font-medium bg-transparent border-0 cursor-pointer transition-all"
+                className="text-golden-orange hover:text-white font-bold bg-transparent border-0 cursor-pointer transition-all"
               >
                 Sign Up
               </button>

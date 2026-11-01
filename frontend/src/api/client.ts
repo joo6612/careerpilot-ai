@@ -15,7 +15,7 @@ export class ApiClient {
       return storedToken;
     }
 
-    return 'demo-user-token';
+    return '';
   }
 
   public static normalizeEndpoint(endpoint: string): string {
@@ -65,6 +65,18 @@ export class ApiClient {
     const rawText = await response.text();
 
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        // Automatically evict stale/expired token to prevent corrupted state lock
+        console.warn('[API-CLIENT] 401/403 Unauthorized received. Purging stale auth tokens.');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('token');
+        localStorage.removeItem('is_demo_mode');
+        sessionStorage.removeItem('auth_token');
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('auth:expired'));
+        }
+      }
+
       let errorMessage = `HTTP Error ${response.status}`;
       if (rawText) {
         try {

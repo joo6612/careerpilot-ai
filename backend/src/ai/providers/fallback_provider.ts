@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import OpenAI from 'openai';
 import { AIProvider } from './base';
 import { MockProvider } from './mock';
 import { AI_MODELS } from '../../config/models';
@@ -9,12 +8,12 @@ interface KeyInstance {
   keyName: string;
   keyVal: string;
   masked: string;
-  client: any;
+  client: GoogleGenerativeAI;
 }
 
 interface ProjectState {
   name: string;
-  providerType: 'gemini' | 'openrouter';
+  providerType: 'gemini';
   keys: KeyInstance[];
   currentIndex: number;
   isAvailable: boolean;
@@ -40,15 +39,21 @@ function is429Error(err: any): boolean {
     msg.includes('resource_exhausted') ||
     msg.includes('billing') ||
     msg.includes('credits') ||
-    msg.includes('insufficient balance') ||
     msg.includes('quota exceeded')
   );
 }
 
+/**
+ * FallbackAIProvider
+ * High-performance orchestrator utilizing Google Gemini tiers exclusively:
+ * - Gemini Flash Lite: resume parsing, skills extraction, simple text
+ * - Gemini Flash: fast interactive chat & general guidance
+ * - Gemini Pro: complex career analysis, roadmaps, job description classification
+ */
 export class FallbackAIProvider implements AIProvider {
   public static instance: FallbackAIProvider | null = null;
-  public name = 'FallbackAIProvider';
-  
+  public name = 'Gemini';
+
   private projects: ProjectState[] = [];
   private mockProvider: MockProvider;
 
@@ -67,10 +72,15 @@ export class FallbackAIProvider implements AIProvider {
       }
     }
 
-    // Sort key names numerically (e.g. GEMINI_API_KEY_1 -> 1, GEMINI_API_KEY_10 -> 10)
+    // Also pick up generic GEMINI_API_KEY if present and not in array
+    if (process.env.GEMINI_API_KEY && !geminiKeys.some(k => k.val === process.env.GEMINI_API_KEY?.trim())) {
+      geminiKeys.unshift({ name: 'GEMINI_API_KEY', val: process.env.GEMINI_API_KEY.trim() });
+    }
+
+    // Sort key names numerically
     geminiKeys.sort((a, b) => {
-      const numA = parseInt(a.name.replace('GEMINI_API_KEY_', ''), 10) || 0;
-      const numB = parseInt(b.name.replace('GEMINI_API_KEY_', ''), 10) || 0;
+      const numA = parseInt(a.name.replace('GEMINI_API_KEY_', '').replace('GEMINI_API_KEY', '0'), 10) || 0;
+      const numB = parseInt(b.name.replace('GEMINI_API_KEY_', '').replace('GEMINI_API_KEY', '0'), 10) || 0;
       return numA - numB;
     });
 
@@ -78,12 +88,8 @@ export class FallbackAIProvider implements AIProvider {
     const keysB: KeyInstance[] = [];
     const keysC: KeyInstance[] = [];
 
-    // Distribute Gemini keys according to Project Groupings:
-    // Project A: GEMINI_API_KEY_1, GEMINI_API_KEY_2
-    // Project B: GEMINI_API_KEY_3
-    // Project C: GEMINI_API_KEY_4 and any subsequent keys
     for (const gk of geminiKeys) {
-      const num = parseInt(gk.name.replace('GEMINI_API_KEY_', ''), 10) || 0;
+      const num = parseInt(gk.name.replace('GEMINI_API_KEY_', '').replace('GEMINI_API_KEY', '0'), 10) || 0;
       const masked = maskKey(gk.val);
       const client = new GoogleGenerativeAI(gk.val);
       const keyInstance: KeyInstance = {
@@ -93,7 +99,7 @@ export class FallbackAIProvider implements AIProvider {
         client
       };
 
-      if (num === 1 || num === 2) {
+      if (num <= 2) {
         keysA.push(keyInstance);
       } else if (num === 3) {
         keysB.push(keyInstance);
@@ -102,9 +108,9 @@ export class FallbackAIProvider implements AIProvider {
       }
     }
 
-    // Initialize Project States
+    // Initialize Gemini Project Clusters
     this.projects.push({
-      name: 'Project A',
+      name: 'Project A (Gemini Primary)',
       providerType: 'gemini',
       keys: keysA,
       currentIndex: 0,
@@ -115,7 +121,7 @@ export class FallbackAIProvider implements AIProvider {
     });
 
     this.projects.push({
-      name: 'Project B',
+      name: 'Project B (Gemini Secondary)',
       providerType: 'gemini',
       keys: keysB,
       currentIndex: 0,
@@ -126,7 +132,7 @@ export class FallbackAIProvider implements AIProvider {
     });
 
     this.projects.push({
-      name: 'Project C',
+      name: 'Project C (Gemini Reserve)',
       providerType: 'gemini',
       keys: keysC,
       currentIndex: 0,
@@ -136,39 +142,10 @@ export class FallbackAIProvider implements AIProvider {
       errors429Count: 0
     });
 
-    // 2. OpenRouter initialization
-    const orKey = process.env.OPENROUTER_API_KEY?.trim() || '';
-    const keysOR: KeyInstance[] = [];
-    if (orKey) {
-      const client = new OpenAI({
-        apiKey: orKey,
-        baseURL: 'https://openrouter.ai/api/v1',
-      });
-      keysOR.push({
-        keyName: 'OPENROUTER_API_KEY',
-        keyVal: orKey,
-        masked: maskKey(orKey),
-        client
-      });
-    }
-
-    this.projects.push({
-      name: 'OpenRouter',
-      providerType: 'openrouter',
-      keys: keysOR,
-      currentIndex: 0,
-      isAvailable: true,
-      cooldownUntil: 0,
-      requestsServed: 0,
-      errors429Count: 0
-    });
-
-    // 3. Log loaded keys status
     for (const p of this.projects) {
-      console.log(`[AI] Loaded project: ${p.name} with ${p.keys.length} key(s).`);
+      console.log(`[AI] Loaded Gemini Cluster: ${p.name} with ${p.keys.length} key(s).`);
     }
 
-    // 4. Perform startup health checks asynchronously so they never block server boot
     this.runStartupHealthChecks();
   }
 
@@ -177,19 +154,11 @@ export class FallbackAIProvider implements AIProvider {
       for (const keyInst of project.keys) {
         (async () => {
           try {
-            if (project.providerType === 'gemini') {
-              const modelName = AI_MODELS.GEMINI_MODEL || 'gemini-2.5-flash';
-              const model = keyInst.client.getGenerativeModel({ model: modelName });
-              await model.generateContent('ping');
-            } else {
-              await keyInst.client.chat.completions.create({
-                model: 'meta-llama/llama-3.3-70b-instruct:free',
-                messages: [{ role: 'user', content: 'ping' }],
-              });
-            }
-            console.log(`[AI] Startup health check succeeded for ${project.name} (${keyInst.keyName}).`);
-          } catch (error: any) {
-            console.warn(`[AI] Startup health check warning for ${project.name} (${keyInst.keyName}):`, error.message || error);
+            const m = keyInst.client.getGenerativeModel({ model: AI_MODELS.GEMINI_FLASH_LITE });
+            await m.generateContent('ping');
+            console.log(`[AI Health] Key ${keyInst.keyName} in ${project.name} is active.`);
+          } catch (err: any) {
+            console.warn(`[AI Health] Key ${keyInst.keyName} health check warning: ${err?.message || err}`);
           }
         })();
       }
@@ -200,6 +169,44 @@ export class FallbackAIProvider implements AIProvider {
     const idx = project.currentIndex;
     project.currentIndex = (project.currentIndex + 1) % project.keys.length;
     return project.keys[idx];
+  }
+
+  /**
+   * Resolves the optimal Gemini model tier based on task and payload requirements
+   */
+  private resolveOptimalModel(promptText: string, requestedModel?: string): string {
+    if (requestedModel) {
+      if (requestedModel.includes('flash-lite') || requestedModel.includes('8b')) return AI_MODELS.GEMINI_FLASH_LITE;
+      if (requestedModel.includes('pro')) return AI_MODELS.GEMINI_PRO;
+      return AI_MODELS.GEMINI_FLASH;
+    }
+
+    const pLower = promptText.toLowerCase();
+
+    // 1. Gemini Flash Lite: resume parsing, skill extraction, quick tagging
+    if (
+      pLower.includes('extract technical skills') ||
+      pLower.includes('skills extraction') ||
+      pLower.includes('parse resume text') ||
+      pLower.includes('extract resume details') ||
+      pLower.includes('verify skill')
+    ) {
+      return AI_MODELS.GEMINI_FLASH_LITE;
+    }
+
+    // 2. Gemini Pro: complex roadmap generation, career matching analytics, readiness breakdown
+    if (
+      pLower.includes('roadmap') ||
+      pLower.includes('milestones') ||
+      pLower.includes('comprehensive') ||
+      pLower.includes('career matching') ||
+      pLower.includes('readiness score calculation')
+    ) {
+      return AI_MODELS.GEMINI_PRO;
+    }
+
+    // 3. Default: Gemini Flash (Fast & Natural Interaction)
+    return AI_MODELS.GEMINI_FLASH;
   }
 
   async generateText(
@@ -218,94 +225,56 @@ export class FallbackAIProvider implements AIProvider {
       }
     }
 
-    // 2. Iterate through available projects: Project A -> Project B -> Project C -> OpenRouter
+    const targetModel = this.resolveOptimalModel(promptText, model);
+
+    // 2. Iterate through available Gemini Clusters
     for (let i = 0; i < this.projects.length; i++) {
       const project = this.projects[i];
       if (!project.isAvailable || project.keys.length === 0) {
         continue;
       }
 
-      console.log(`[AI] Using ${project.name}`);
-
       let keyAttempt = 0;
       const numKeys = project.keys.length;
       let success = false;
       let resultText = '';
 
-      // Try keys in project (Smart Retry: only once per key)
       while (keyAttempt < numKeys) {
-        // Select key using Round Robin
         const keyInst = this.getNextKey(project);
         const idxInProject = project.keys.indexOf(keyInst);
         keyAttempt++;
 
-        console.log(`[AI] Using Key #${idxInProject + 1}`);
-
         try {
-          if (project.providerType === 'gemini') {
-            const executeCall = async () => {
-              const modelName = AI_MODELS.GEMINI_MODEL || 'gemini-2.5-flash';
-              const modelObj = keyInst.client.getGenerativeModel({
-                model: modelName,
-                systemInstruction,
-                generationConfig: jsonMode ? { responseMimeType: 'application/json' } : undefined
-              });
-              const response = await modelObj.generateContent(promptText);
-              const text = response.response.text();
-              if (!text || text.trim() === '') {
-                throw new Error('empty response from Gemini model');
-              }
-              return text.trim();
-            };
-            resultText = await AIRequestManager.enqueue(promptText, systemInstruction, jsonMode, 'gemini', executeCall);
-          } else {
-            const executeCall = async () => {
-              const selectedModel = model || 'meta-llama/llama-3.3-70b-instruct:free';
-              const messages: any[] = [];
-              if (systemInstruction) {
-                messages.push({ role: 'system', content: systemInstruction });
-              }
-              messages.push({ role: 'user', content: promptText });
-              const response = await keyInst.client.chat.completions.create({
-                model: selectedModel,
-                messages,
-                response_format: jsonMode ? { type: 'json_object' } : undefined,
-              });
-              const text = response.choices?.[0]?.message?.content;
-              if (!text || text.trim() === '') {
-                throw new Error('empty response from OpenRouter model');
-              }
-              return text.trim();
-            };
-            resultText = await AIRequestManager.enqueue(promptText, systemInstruction, jsonMode, 'openrouter', executeCall);
-          }
+          const executeCall = async () => {
+            const modelObj = keyInst.client.getGenerativeModel({
+              model: targetModel,
+              systemInstruction,
+              generationConfig: jsonMode ? { responseMimeType: 'application/json' } : undefined
+            });
+            const response = await modelObj.generateContent(promptText);
+            const text = response.response.text();
+            if (!text || text.trim() === '') {
+              throw new Error('empty response from Gemini model');
+            }
+            return text.trim();
+          };
 
-          // Success!
+          resultText = await AIRequestManager.enqueue(promptText, systemInstruction, jsonMode, 'gemini', executeCall);
+
           project.requestsServed++;
           success = true;
-          this.name = project.providerType === 'gemini' ? 'Gemini' : 'OpenRouter';
-          console.log(`[AI] ${project.name} success`);
-          break; // break key attempts loop
+          this.name = 'Gemini';
+          break;
         } catch (err: any) {
-          console.error(`[AI] Error on ${project.name} with key ${keyInst.keyName}:`, err.message || err);
+          console.error(`[AI] Error on ${project.name} (Key #${idxInProject + 1}):`, err.message || err);
 
           if (is429Error(err)) {
-            console.warn(`[AI] 429 received`);
+            console.warn(`[AI] Rate limit hit on ${project.name}. Cooldown activated.`);
             project.errors429Count++;
-
-            // Cooldown entire project for 60 seconds
             project.isAvailable = false;
             project.cooldownUntil = Date.now() + 60000;
-
-            // Find next available target name for the logging requirement
-            const nextProj = this.projects.slice(i + 1).find(p => p.isAvailable && p.keys.length > 0);
-            const nextName = nextProj ? nextProj.name : 'Mock';
-            console.warn(`[AI] Switching to ${nextName}`);
-            
-            // Immediately stop trying this project and failover to the next project
-            break; 
+            break;
           }
-          // Non-429 errors continue to next key within project (Smart Retry once per key)
         }
       }
 
@@ -314,8 +283,8 @@ export class FallbackAIProvider implements AIProvider {
       }
     }
 
-    // 3. Fallback to Mock Provider if all else fails
-    console.error('[AI] All projects failed. Returning mock provider response.');
+    // 3. Fallback to Mock Provider if all clusters are exhausted
+    console.warn('[AI] All Gemini clusters unavailable or rate-limited. Falling back to structured response.');
     this.name = 'Mock';
     return this.mockProvider.generateText(promptText, systemInstruction, jsonMode, model);
   }

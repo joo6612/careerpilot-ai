@@ -51,6 +51,15 @@ export interface TimeAvailabilityDetails {
   preferredStudyTime: StudyTimePreference;
 }
 
+export interface ProfessionalSocialLinks {
+  linkedin?: string;
+  indeed?: string;
+  naukri?: string;
+  leetcode?: string;
+  codechef?: string;
+  geeksforgeeks?: string;
+}
+
 export interface UserProfile {
   name: string;
   aboutMe: string;
@@ -77,6 +86,9 @@ export interface UserProfile {
 
   // Page 8: Projects
   projects: ProjectDetails;
+
+  // Professional links
+  socialLinks?: ProfessionalSocialLinks;
 
   // Page 9: Resume
   resume: ResumeDetails;
@@ -108,6 +120,20 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+export interface MilestoneProject {
+  title: string;
+  description: string;
+  deliverables: string[];
+  submissionStatus?: 'pending' | 'submitted' | 'completed';
+}
+
+export interface LearningResources {
+  youtube?: { title: string; url: string }[];
+  coursera?: { title: string; url: string }[];
+  udemy?: { title: string; url: string }[];
+  kaggle?: { title: string; url: string }[];
+}
+
 export interface RoadmapItem {
   id: string;
   title: string;
@@ -116,4 +142,6 @@ export interface RoadmapItem {
   duration: string;
   skills: string[];
   topics: string[];
+  project?: MilestoneProject;
+  resources?: LearningResources;
 }

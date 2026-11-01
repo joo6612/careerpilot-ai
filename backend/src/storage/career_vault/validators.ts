@@ -22,27 +22,45 @@ export interface PatchBody {
 }
 
 /**
+ * Intelligent AI / Heuristic classifier for Vault documents
+ */
+export function autoDetectCategory(fileName: string, title: string, textContent: string): DocumentCategory {
+  const combined = `${fileName} ${title} ${textContent}`.toLowerCase();
+  if (/resume|cv|curriculum\s*vitae|bio\s*data/.test(combined)) return 'Resume';
+  if (/certif|completion|diploma|badge|award|coursera|udemy|edx|licensed/.test(combined)) return 'Certificate';
+  if (/project|portfolio|github|case\s*study|codebase|repository/.test(combined)) return 'Project';
+  if (/transcript|marksheet|semester|grade\s*card|gpa/.test(combined)) return 'Transcript';
+  if (/degree|graduation|academic|bonafide|matriculation|university|college|school/.test(combined)) return 'Academic Document';
+  if (/offer\s*letter|appointment|employment\s*contract|salary\s*slip|joining\s*letter/.test(combined)) return 'Offer Letter';
+  if (/achievement|hackathon|trophy|honors|winner|placement/.test(combined)) return 'Achievement';
+  return 'Other';
+}
+
+/**
  * Validates required fields for a vault document upload.
- * Returns a normalized UploadBody.
+ * Returns a normalized UploadBody with auto-categorization fallback.
  */
 export function validateUploadBody(body: any): UploadBody {
   let category = String(body.category || '').trim();
-  if (category === 'Other Documents') {
-    category = 'Other';
-  }
   const title = String(body.title || '').trim();
   const fileName = String(body.fileName || '').trim();
   const fileType = String(body.fileType || '').trim().toLowerCase();
   const textContent = String(body.textContent || '').trim();
 
-  if (!category) {
-    throw new Error('Document category is required.');
+  // Handle auto-categorization or folder alias mapping
+  if (category === 'auto' || !category || category === 'Other' || category === 'Other Documents') {
+    category = autoDetectCategory(fileName, title, textContent);
   }
+
+  if (category === 'Certificates') category = 'Certificate';
+  if (category === 'Projects') category = 'Project';
+  if (category === 'Academic Documents') category = 'Academic Document';
+  if (category === 'Offer Letters') category = 'Offer Letter';
+
   if (!isValidCategory(category)) {
-    throw new Error(
-      `Invalid document category '${category}'. Valid categories: Resume, Certificate, Project, Academic Document, Transcript, Offer Letter, Achievement, Portfolio File, Other.`
-    );
+    category = autoDetectCategory(fileName, title, textContent);
   }
+
   if (!title) {
     throw new Error('Document title is required.');
   }
@@ -67,62 +85,35 @@ export function validateUploadBody(body: any): UploadBody {
     fileSize,
     textContent,
     tags,
-    storagePath: String(body.storagePath || '').trim() || undefined
+    storagePath: body.storagePath ? String(body.storagePath).trim() : undefined
   };
 }
 
-/**
- * Validates a PATCH body for updating an existing document.
- * Only allows whitelisted mutable fields.
- */
 export function validatePatchBody(body: any): PatchBody {
   const patch: PatchBody = {};
-
-  if (body.title !== undefined) {
-    patch.title = String(body.title).trim();
-  }
-  if (body.description !== undefined) {
-    patch.description = String(body.description).trim();
+  if (body.title !== undefined) patch.title = String(body.title).trim();
+  if (body.description !== undefined) patch.description = String(body.description).trim();
+  if (body.textContent !== undefined) patch.textContent = String(body.textContent).trim();
+  if (body.status !== undefined) {
+    if (body.status !== 'active' && body.status !== 'archived') {
+      throw new Error(`Invalid status '${body.status}'. Valid values: active, archived.`);
+    }
+    patch.status = body.status;
   }
   if (body.tags !== undefined) {
-    if (!Array.isArray(body.tags)) {
-      throw new Error('Tags must be an array of strings.');
-    }
-    patch.tags = body.tags.map((t: any) => String(t).trim()).filter(Boolean);
+    patch.tags = Array.isArray(body.tags)
+      ? body.tags.map((t: any) => String(t).trim()).filter(Boolean)
+      : [];
   }
-  if (body.status !== undefined) {
-    const s = String(body.status).trim();
-    if (!['active', 'archived'].includes(s)) {
-      throw new Error("Status must be either 'active' or 'archived'.");
-    }
-    patch.status = s as 'active' | 'archived';
-  }
-  if (body.textContent !== undefined) {
-    patch.textContent = String(body.textContent).trim();
-  }
-
-  if (Object.keys(patch).length === 0) {
-    throw new Error('No valid fields provided for update. Allowed: title, description, tags, status, textContent.');
-  }
-
   return patch;
 }
 
-/**
- * Validates and normalizes search query parameters from req.query.
- */
 export function validateSearchQuery(query: any): VaultSearchQuery {
-  const result: VaultSearchQuery = {};
-
-  if (query.q) result.q = String(query.q).trim();
-  if (query.category) result.category = String(query.category).trim();
-  if (query.fileType) result.fileType = String(query.fileType).trim().toLowerCase();
-
-  const sortBy = String(query.sortBy || '').trim();
-  if (sortBy === 'name' || sortBy === 'date') result.sortBy = sortBy;
-
-  const sortOrder = String(query.sortOrder || '').trim();
-  if (sortOrder === 'asc' || sortOrder === 'desc') result.sortOrder = sortOrder;
-
-  return result;
+  return {
+    q: query.q || query.query ? String(query.q || query.query).trim() : undefined,
+    category: query.category ? String(query.category).trim() : undefined,
+    fileType: query.fileType ? String(query.fileType).trim() : undefined,
+    sortBy: query.sortBy === 'name' ? 'name' : 'date',
+    sortOrder: query.sortOrder === 'asc' ? 'asc' : 'desc'
+  };
 }

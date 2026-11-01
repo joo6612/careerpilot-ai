@@ -202,21 +202,28 @@ export class RoadmapService {
     const roadmap = await this.getActiveRoadmap(uid);
     let found = false;
 
+    // Flatten milestones in chronological order
+    const allMilestones: any[] = [];
     roadmap.phases.forEach(phase => {
-      phase.milestones.forEach(m => {
-        if (m.id === milestoneId) {
-          m.status = status;
-          found = true;
-
-          // Cascade to tasks if status is completed or locked
-          if (status === 'completed') {
-            m.tasks.forEach(t => t.status = 'completed');
-          } else if (status === 'locked') {
-            m.tasks.forEach(t => t.status = 'locked');
-          }
-        }
-      });
+      phase.milestones.forEach(m => allMilestones.push(m));
     });
+
+    const targetIdx = allMilestones.findIndex(m => m.id === milestoneId);
+    if (targetIdx !== -1) {
+      found = true;
+      allMilestones[targetIdx].status = status;
+
+      // Cascade to tasks if status is completed or locked
+      if (status === 'completed') {
+        allMilestones[targetIdx].tasks.forEach((t: any) => t.status = 'completed');
+        // Auto-unlock immediate next milestone if currently locked
+        if (targetIdx + 1 < allMilestones.length && allMilestones[targetIdx + 1].status === 'locked') {
+          allMilestones[targetIdx + 1].status = 'in-progress';
+        }
+      } else if (status === 'locked') {
+        allMilestones[targetIdx].tasks.forEach((t: any) => t.status = 'locked');
+      }
+    }
 
     if (!found) {
       throw new Error(`Roadmap milestone with ID '${milestoneId}' was not found.`);

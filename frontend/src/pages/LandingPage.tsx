@@ -1,6 +1,5 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
-import { useAuth } from '../auth/useAuth';
 import { 
   Compass, 
   Map, 
@@ -16,79 +15,67 @@ import {
 
 export const LandingPage: React.FC = () => {
   const { setPage } = useApp();
-  const { startDemoSession } = useAuth();
-
-  const handleTryDemo = () => {
-    startDemoSession();
-    setPage('dashboard');
-  };
 
   const features = [
     {
-      icon: <Compass className="w-6 h-6 text-neon-blue" />,
-      title: 'Career Discovery',
-      description: 'Find your true calling through interests, preferences, and salary targets powered by AI.'
+      icon: <Compass className="w-6 h-6 text-dark-cyan" />,
+      title: 'Career Description Hub',
+      description: 'Discover target careers matched to your actual tech skills, live vacancies, and curated learning guides.'
     },
     {
-      icon: <Map className="w-6 h-6 text-neon-purple" />,
-      title: 'Roadmap Generator',
-      description: 'Get a personalized step-by-step learning timeline calibrated to your weekly availability.'
+      icon: <Map className="w-6 h-6 text-golden-orange" />,
+      title: 'Auto-Unlocking Roadmaps',
+      description: 'Progress through chronological milestones that auto-unlock with actionable hands-on projects.'
     },
     {
-      icon: <FileText className="w-6 h-6 text-neon-pink" />,
-      title: 'Resume Analyzer',
-      description: 'Get instant ATS scoring, strengths, weaknesses, and a list of missing skills to optimize.'
+      icon: <FileText className="w-6 h-6 text-pearl-aqua" />,
+      title: 'Resume ATS Scanner',
+      description: 'Instant ATS scoring, keyword gap analysis, and multi-format export to DOCX, HTML, and JSON.'
     },
     {
-      icon: <Award className="w-6 h-6 text-neon-cyan" />,
-      title: 'Interview Preparation',
-      description: 'Practice with mock interview questions generated specifically for your target career.'
+      icon: <Award className="w-6 h-6 text-burnt-caramel" />,
+      title: 'AI Mentorship & TTS',
+      description: 'Interactive specialist coaching with real-time speech synthesis read-aloud support.'
     },
     {
-      icon: <Calendar className="w-6 h-6 text-neon-blue" />,
-      title: 'Weekly Planner',
-      description: 'Stay on track with structured study goals, specific hours per day, and status monitoring.'
+      icon: <Calendar className="w-6 h-6 text-dark-cyan" />,
+      title: 'Time Commitment Calibration',
+      description: 'Tailored study hours per day, customized target salary expectations, and geographic settings.'
     },
     {
-      icon: <Activity className="w-6 h-6 text-neon-purple" />,
-      title: 'Progress Tracking',
-      description: 'Visualize your streak, completed certifications, projects, and next milestone alerts.'
+      icon: <Activity className="w-6 h-6 text-pearl-aqua" />,
+      title: 'Career Vault Document Store',
+      description: 'AI auto-categorization for resumes, certificates, and academic documents with verified preview.'
     }
   ];
 
   return (
-    <div className="min-height-screen bg-navy-bg bg-grid-pattern relative flex flex-col justify-between overflow-x-hidden">
+    <div className="min-h-screen bg-ink-black bg-grid-pattern relative flex flex-col justify-between overflow-x-hidden text-vanilla-custard">
       {/* Background Radial Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-neon-blue/10 blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-[20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-neon-purple/10 blur-[150px] pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-dark-cyan/15 blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-golden-orange/15 blur-[150px] pointer-events-none"></div>
 
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 glass-card border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center">
-        <div className="flex items-center gap-2 cursor-pointer">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-blue to-neon-purple flex items-center justify-center shadow-lg shadow-neon-blue/20">
-            <BrainCircuit className="w-6 h-6 text-white" />
+      <header className="sticky top-0 z-50 glass-card border-b border-pearl-aqua/10 py-4 px-6 md:px-12 flex justify-between items-center">
+        <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setPage('landing')}>
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-dark-cyan via-pearl-aqua to-golden-orange flex items-center justify-center shadow-lg shadow-dark-cyan/20">
+            <BrainCircuit className="w-6 h-6 text-ink-black" />
           </div>
-          <span className="font-display font-bold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-neon-blue bg-clip-text text-transparent">
-            CareerPilot <span className="text-neon-cyan">AI</span>
+          <span className="font-display font-bold text-xl tracking-tight text-white">
+            CareerPilot <span className="text-pearl-aqua">AI</span>
           </span>
         </div>
         
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={handleTryDemo}
-            className="px-4 py-2 rounded-xl text-xs font-bold border border-emerald-500/30 text-emerald-400 hover:text-white hover:bg-emerald-500/10 transition-all cursor-pointer"
-          >
-            ✨ Try Demo
-          </button>
+        <div className="flex items-center gap-3">
           <button 
             onClick={() => setPage('login')} 
-            className="px-5 py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+            className="px-5 py-2.5 rounded-xl text-xs font-bold text-vanilla-custard hover:text-white hover:bg-dark-teal/30 transition-all border border-pearl-aqua/20 cursor-pointer"
           >
             Sign In
           </button>
           <button 
-            onClick={() => setPage('onboarding')} 
-            className="px-5 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-neon-blue to-neon-purple text-white shadow-lg shadow-neon-blue/20 hover:shadow-neon-purple/30 hover:scale-105 transition-all"
+            onClick={() => setPage('login')} 
+            className="px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-dark-cyan via-golden-orange to-burnt-caramel text-ink-black shadow-lg shadow-dark-cyan/20 hover:scale-105 transition-all cursor-pointer border-0"
           >
             Get Started
           </button>
@@ -98,176 +85,124 @@ export const LandingPage: React.FC = () => {
       {/* Main Hero Section */}
       <main className="flex-1 max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
         <div className="flex flex-col gap-6 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card border border-white/10 text-xs font-semibold text-neon-cyan w-fit tracking-wide animate-pulse-glow">
-            <Sparkles className="w-3.5 h-3.5" />
-            NEXT-GEN CAREER TRANSFORMATION
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-card border border-pearl-aqua/20 text-xs font-bold text-pearl-aqua w-fit tracking-wide">
+            <Sparkles className="w-3.5 h-3.5 text-golden-orange" />
+            AI-POWERED CAREER OPERATING SYSTEM
           </div>
           
           <h1 className="font-display font-extrabold text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight text-white m-0">
             Navigate Your Future with <br />
-            <span className="bg-gradient-to-r from-neon-blue via-neon-cyan to-neon-purple bg-clip-text text-transparent text-glow-blue">
+            <span className="bg-gradient-to-r from-dark-cyan via-pearl-aqua to-golden-orange bg-clip-text text-transparent">
               CareerPilot AI
             </span>
           </h1>
           
-          <p className="text-lg text-slate-400 font-normal leading-relaxed max-w-lg m-0">
-            Your Personal AI Career Mentor. We help students and professionals discover high-paying jobs, build custom study roadmaps, optimize resumes, and master mock interviews.
+          <p className="text-base md:text-lg text-vanilla-custard/90 font-normal leading-relaxed max-w-lg m-0">
+            Your Personal AI Career Operating System. Discover high-demand engineering tracks, build tailored milestone roadmaps, verify ATS resumes, and accelerate your professional readiness.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-4 mt-4">
-            <button 
-              onClick={() => setPage('onboarding')} 
-              className="w-full sm:w-auto px-8 py-4 rounded-xl font-semibold bg-gradient-to-r from-neon-blue to-neon-purple text-white flex items-center justify-center gap-2 shadow-xl shadow-neon-blue/15 hover:shadow-neon-purple/25 hover:scale-105 transition-all cursor-pointer group"
-            >
-              Start Free Mentor Flow
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+          <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
             <button 
               onClick={() => setPage('login')} 
-              className="w-full sm:w-auto px-8 py-4 rounded-xl font-semibold glass-card border border-white/10 text-white flex items-center justify-center gap-2 hover:bg-white/10 hover:border-neon-cyan/40 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl font-black text-sm bg-gradient-to-r from-dark-cyan via-golden-orange to-burnt-caramel text-ink-black flex items-center justify-center gap-2 shadow-xl shadow-dark-cyan/20 hover:scale-105 transition-all cursor-pointer group border-0"
             >
-              Sign In to Dashboard
+              Start Free Assessment
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-            <div className="flex flex-col items-center w-full sm:w-auto">
-              <button 
-                onClick={handleTryDemo} 
-                className="w-full px-8 py-4 rounded-xl font-bold bg-gradient-to-r from-emerald-500 to-teal-500 text-white flex items-center justify-center gap-2 shadow-xl shadow-emerald-500/15 hover:shadow-teal-500/25 hover:scale-105 transition-all cursor-pointer border border-emerald-400/20 active:scale-[0.98]"
-              >
-                ✨ Try Demo
-              </button>
-              <span className="text-[10px] text-emerald-400 mt-1.5 font-medium tracking-wide uppercase">No registration required</span>
-            </div>
+            <button 
+              onClick={() => setPage('login')}
+              className="w-full sm:w-auto px-8 py-4 rounded-xl font-bold text-sm glass-card border border-pearl-aqua/30 text-vanilla-custard hover:text-white hover:bg-dark-teal/40 transition-all cursor-pointer"
+            >
+              Sign In to Account
+            </button>
           </div>
 
-          <div className="flex items-center gap-6 mt-6 border-t border-white/5 pt-6">
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-white">98%</span>
-              <span className="text-xs text-slate-500">ATS Optimization Rate</span>
+          <div className="flex items-center gap-6 mt-4 text-xs text-pearl-aqua/80">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-pearl-aqua" />
+              <span>Strict Firebase Security</span>
             </div>
-            <div className="h-8 w-px bg-white/10"></div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-white">10K+</span>
-              <span className="text-xs text-slate-500">Roadmaps Generated</span>
-            </div>
-            <div className="h-8 w-px bg-white/10"></div>
-            <div className="flex flex-col">
-              <span className="text-2xl font-bold text-white">4.9/5</span>
-              <span className="text-xs text-slate-500">Mentor Rating</span>
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-golden-orange" />
+              <span>Gemini Multi-Tier Routing</span>
             </div>
           </div>
         </div>
 
-        {/* AI Assistant Illustration */}
-        <div className="flex justify-center items-center relative lg:pl-10">
-          <div className="absolute w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-neon-blue/20 to-neon-purple/20 blur-[60px] animate-spin-slow"></div>
-          
-          {/* Glassmorphic SVG Illustration */}
-          <div className="relative glass-card border-white/10 w-full max-w-[450px] h-[450px] rounded-3xl flex items-center justify-center shadow-2xl p-6 overflow-hidden animate-float">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-neon-purple/10 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-neon-blue/10 rounded-full blur-2xl"></div>
-
-            <svg viewBox="0 0 400 400" className="w-full h-full max-w-[320px] max-h-[320px]" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* Outer Glow Ring */}
-              <circle cx="200" cy="200" r="140" stroke="url(#cyanPurpleGrad)" strokeWidth="2" strokeDasharray="5 5" opacity="0.3" />
-              
-              {/* Mid Ring */}
-              <circle cx="200" cy="200" r="110" stroke="url(#blueGrad)" strokeWidth="1.5" opacity="0.4" />
-              
-              {/* Outer Orbit Dots */}
-              <circle cx="200" cy="60" r="6" fill="#00f0ff" className="animate-pulse" />
-              <circle cx="90" cy="200" r="4" fill="#bc34fa" />
-              <circle cx="310" cy="200" r="5" fill="#00f5ff" />
-              <circle cx="200" cy="340" r="6" fill="#ff007f" />
-              
-              {/* Brain Circuit Pathways */}
-              <path d="M150 160C150 140 180 130 200 130C220 130 250 140 250 160C250 180 220 200 200 200C180 200 150 220 150 240C150 260 180 270 200 270" stroke="url(#cyanPurpleGrad)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3" />
-              <path d="M200 130V270" stroke="#00f5ff" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
-              
-              {/* Glowing Center Hub */}
-              <g filter="url(#glow)">
-                <circle cx="200" cy="200" r="45" fill="#0A0E1A" stroke="url(#cyanPurpleGrad)" strokeWidth="3" />
-                <circle cx="200" cy="200" r="30" fill="url(#coreGrad)" opacity="0.8" />
-                <circle cx="200" cy="200" r="15" fill="#ffffff" className="animate-pulse" />
-              </g>
-              
-              {/* Floating tech nodes */}
-              <circle cx="150" cy="160" r="8" fill="#0A0E1A" stroke="#00f0ff" strokeWidth="2" />
-              <circle cx="250" cy="160" r="8" fill="#0A0E1A" stroke="#bc34fa" strokeWidth="2" />
-              <circle cx="150" cy="240" r="8" fill="#0A0E1A" stroke="#bc34fa" strokeWidth="2" />
-              
-              <defs>
-                <linearGradient id="cyanPurpleGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#00f0ff" />
-                  <stop offset="100%" stopColor="#bc34fa" />
-                </linearGradient>
-                <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#00f0ff" />
-                  <stop offset="100%" stopColor="#00f5ff" />
-                </linearGradient>
-                <linearGradient id="coreGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#00f0ff" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#bc34fa" stopOpacity="0.8" />
-                </linearGradient>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="10" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-            </svg>
-
-            {/* Float Card Stats Overlay */}
-            <div className="absolute bottom-6 right-6 glass-card border-white/10 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 shadow-xl text-left scale-90 sm:scale-100">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+        {/* Hero Preview Card */}
+        <div className="relative flex justify-center items-center">
+          <div className="w-full max-w-lg glass-card rounded-3xl p-6 border border-pearl-aqua/20 shadow-2xl relative text-left">
+            <div className="flex justify-between items-center border-b border-pearl-aqua/10 pb-4 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-rusty-spice"></span>
+                <span className="w-3 h-3 rounded-full bg-golden-orange"></span>
+                <span className="w-3 h-3 rounded-full bg-pearl-aqua"></span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">MOCK INTERVIEW SCORER</span>
-                <span className="text-xs font-bold text-emerald-400">92% AI Readiness Score</span>
+              <span className="text-[10px] font-mono text-pearl-aqua/70">careerpilot-os v2.4</span>
+            </div>
+
+            <div className="flex flex-col gap-4 text-xs">
+              <div className="p-4 rounded-2xl bg-dark-teal/20 border border-pearl-aqua/15">
+                <span className="text-[9px] text-golden-orange font-bold uppercase block">Calibrated Goal</span>
+                <span className="text-sm font-extrabold text-white mt-0.5 block">AI / Machine Learning Engineer</span>
+                <span className="text-[10px] text-pearl-aqua mt-1 block">14,800+ Active Roles • +28% YoY Growth</span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-ink-black/60 border border-pearl-aqua/15 flex justify-between items-center">
+                <div>
+                  <span className="text-[10px] text-pearl-aqua font-bold uppercase">ATS Verification</span>
+                  <span className="text-xs font-bold text-white block mt-0.5">Resume Score: 84%</span>
+                </div>
+                <span className="px-2.5 py-1 rounded-lg bg-pearl-aqua/20 text-pearl-aqua font-black text-xs">PASSED</span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-dark-teal/30 border border-pearl-aqua/15">
+                <div className="flex justify-between items-center mb-1.5">
+                  <span className="text-[10px] text-vanilla-custard font-bold uppercase">Roadmap Progress</span>
+                  <span className="text-xs font-extrabold text-golden-orange">Stage 2 Unlocked</span>
+                </div>
+                <div className="h-1.5 w-full bg-ink-black/80 rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-dark-cyan to-golden-orange w-1/2"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Features Grid Section */}
-      <section className="bg-navy-dark border-t border-white/5 py-20 px-6 md:px-12 z-10 relative">
-        <div className="max-w-7xl mx-auto text-center flex flex-col gap-12">
-          <div className="flex flex-col gap-3 max-w-2xl mx-auto">
-            <h2 className="font-display font-bold text-3xl md:text-4xl text-white m-0">
-              Supercharge Your Professional Journey
-            </h2>
-            <p className="text-slate-400 text-sm md:text-base leading-relaxed m-0">
-              Everything you need to pilot your career from discovery to preparation and real-time planning, built with advanced AI modules.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="glass-card glass-card-hover p-6 rounded-2xl text-left flex flex-col gap-4 transition-all duration-300"
-              >
-                <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center border border-white/5">
-                  {feature.icon}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-display font-semibold text-lg text-white m-0">
-                    {feature.title}
-                  </h3>
-                  <p className="text-slate-400 text-sm leading-relaxed m-0">
-                    {feature.description}
-                  </p>
-                </div>
+      {/* Feature Grid */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 py-16 z-10 w-full">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-black text-white">Full-Stack Career Acceleration</h2>
+          <p className="text-xs text-pearl-aqua/80 mt-1">Everything you need to master modern technical tracks from day one.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+          {features.map((feat, idx) => (
+            <div 
+              key={idx} 
+              className="glass-card p-6 rounded-2xl border border-pearl-aqua/15 hover:border-dark-cyan transition-all flex flex-col gap-3 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-dark-teal/40 flex items-center justify-center shrink-0 border border-pearl-aqua/20">
+                {feat.icon}
               </div>
-            ))}
-          </div>
+              <h3 className="font-display font-extrabold text-base text-white group-hover:text-pearl-aqua transition-colors m-0">
+                {feat.title}
+              </h3>
+              <p className="text-xs text-vanilla-custard/80 leading-relaxed m-0">
+                {feat.description}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-8 px-6 md:px-12 text-center text-slate-500 text-xs z-10 bg-navy-bg">
-        <p className="m-0">&copy; {new Date().getFullYear()} CareerPilot AI. Powered by Advanced Agentic Mentorship. All rights reserved.</p>
+      <footer className="border-t border-pearl-aqua/10 py-6 px-6 md:px-12 text-center text-xs text-pearl-aqua/60 z-10">
+        © 2026 CareerPilot AI Operating System. Strict Authentication & Multi-Model Gemini Orchestration.
       </footer>
     </div>
   );
 };
+
+export default LandingPage;

@@ -33,7 +33,7 @@ export const OnboardingWizard: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string }>>([
     {
       sender: 'ai',
-      text: "Hello! I am CareerPilot AI, your intelligent career mentor. Let's configure your Career Operating System. To start, please tell me a bit about yourself—your background, education, current skills, and target job roles!"
+      text: "Hello! I am CareerPilot AI, your intelligent career mentor. To construct your high-precision career roadmap, tell me about yourself: your core interests, whether you are a Student or a Working Professional (with your role/title), any internships completed, and your hands-on work experience!"
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -834,7 +834,7 @@ export const OnboardingWizard: React.FC = () => {
                       type="text"
                       value={profile.country}
                       onChange={(e) => updateProfile({ country: e.target.value })}
-                      placeholder="United States"
+                      placeholder="e.g. United States"
                       className="px-4 py-3 bg-navy-dark/60 border border-white/10 rounded-xl text-slate-200 focus:outline-none focus:border-neon-blue/60 text-sm"
                     />
                   </div>

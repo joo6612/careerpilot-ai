@@ -506,8 +506,8 @@ router.post('/v1/ai/test', async (req: AuthenticatedRequest, res: Response) => {
 
     return res.json({
       success: true,
-      provider: 'OpenRouter',
-      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      provider: 'Gemini',
+      model: 'gemini-2.5-flash',
       executionTimeMs: Date.now() - startTime,
       reply: reply.recommendation ?? reply.data ?? 'No reply generated'
     });
@@ -527,8 +527,8 @@ router.post('/v1/ai/test', async (req: AuthenticatedRequest, res: Response) => {
 
     return res.status(502).json({
       success: false,
-      provider: 'OpenRouter',
-      model: 'meta-llama/llama-3.3-70b-instruct:free',
+      provider: 'Gemini',
+      model: 'gemini-2.5-flash',
       errorType,
       error: error.message,
       executionTimeMs: execTime
